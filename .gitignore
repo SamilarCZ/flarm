@@ -1,5 +1,6 @@
 *.iml
 .idea/
+.idea/*
 *.ipr
 *.iws
 .idea_modules/
