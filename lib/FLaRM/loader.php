@@ -10,6 +10,8 @@ if (!class_exists('FLaRM\Loaders\FLaRMLoader')) {
 	require __DIR__ . '/Loaders/FLaRMLoader.php';
 }
 
-class_alias('FLaRM\DI\AContainer', 'FLaRM\AContainer');
-
+//\FLaRM\Loaders\FLaRMLoader::getInstance()->register();
+if (!class_exists('FLaRM\DI\AContainer')) {
+    class_alias('FLaRM\DI\AContainer', 'FLaRM\AContainer');
+}
 require_once __DIR__ . '/shortcuts.php';
