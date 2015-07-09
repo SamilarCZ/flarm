@@ -1,4 +1,6 @@
 /app/config/config.local.neon
+app/config/config.local.neon
+*.local.neon
 *.iml
 .idea/
 .idea/*
