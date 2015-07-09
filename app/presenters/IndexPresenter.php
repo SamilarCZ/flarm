@@ -2,9 +2,9 @@
 
 namespace App\Presenters;
 
-use FLaRM\Framework;
 use Nette,
 	App\Model;
+use FLaRM\Framework;
 
 
 /**

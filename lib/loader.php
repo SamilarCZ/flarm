@@ -6,30 +6,32 @@
  * [Nette] Copyright (c) 2004 David Grudl (http://davidgrudl.com)
  */
 
-require_once 'Nette/loader.php';
-//Nette\Utils\SafeStream::register();
-$configurator = new Nette\Configurator;
+	require_once 'Nette/loader.php';
+	require_once 'FLaRM/loader.php';
 
-//$configurator->setDebugMode('23.75.345.200'); // enable for your remote IP
-$configurator->enableDebugger(__DIR__ . '/../log');
+	//Nette\Utils\SafeStream::register();
+	$configurator = new Nette\Configurator;
 
-$configurator->setTempDirectory(__DIR__ . '/../temp');
+	//$configurator->setDebugMode('23.75.345.200'); // enable for your remote IP
+	$configurator->enableDebugger(__DIR__ . '/../log');
 
-$configurator->createRobotLoader()
-    ->addDirectory(__DIR__)
-    ->register();
+	$configurator->setTempDirectory(__DIR__ . '/../temp');
 
-$configurator->addConfig(__DIR__ . '/../app/config/config.neon');
-$configurator->addConfig(__DIR__ . '/../app/config/config.local.neon');
-$configurator->addConfig(__DIR__ . '/../app/config/flarm.neon');
+	$configurator->createRobotLoader()
+		->addDirectory(__DIR__. '/../app')
+		->addDirectory(__DIR__ . '/Nette')
+		->addDirectory(__DIR__ . '/FLaRM')
+		->register();
 
-$container = $configurator->createContainer();
+	$configurator->addConfig(__DIR__ . '/../app/config/config.neon');
+	$configurator->addConfig(__DIR__ . '/../app/config/config.local.neon');
+	$configurator->addConfig(__DIR__ . '/../app/config/flarm.neon');
+	$container = $configurator->createContainer();
+	$FLaRMContainer = new \FLaRM\DI\FLaRMContainer();
 
-require_once 'FLaRM/loader.php';
-$router = new \Nette\Application\Routers\RouteList();
-//\App\RouterFactory::createRouter($router);
-$router[] = new \Nette\Application\Routers\Route('<presenter>/<action>[/<id>]', 'Homepage:index');
-$router[] = new \Nette\Application\Routers\Route('index.php', 'Index:index', Route::ONE_WAY);
-$router[] = new \Nette\Application\Routers\Route('<action>', 'Index:index');
-//$container->addService('router', $router);
-return $container;
+	$router = App\RouterFactory::createRoutes();
+
+	$container->addService('FLaRMContainer', $FLaRMContainer);
+	$container->addService('router', $router);
+
+	return $container;

@@ -23,7 +23,7 @@ use Nette\Utils\Callback;
  *
  * @author     Filip Lánský
  */
-class AContainer extends Container
+class FLaRMContainer extends Container
 {
     const TAGS = 'tags';
     const TYPES = 'types';

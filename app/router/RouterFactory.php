@@ -2,11 +2,11 @@
 
 namespace App;
 
-use Nette,
-    Nette\Application\Routers\RouteList,
-    Nette\Application\Routers\Route,
-    Nette\Application\Routers\SimpleRouter;
-
+use Nette;
+use Nette\Application\Routers\Route;
+use Nette\Http\IRequest;
+use Nette\Application\Request;
+use Nette\Http\Url;
 
 /**
  * FLaRM Router factory which extends default Nette RouterFactory, but this one define default APP routes
@@ -19,17 +19,14 @@ use Nette,
  */
 class RouterFactory implements Nette\Application\IRouter{
 
-    /**
-     * @param $router RouteList
-     * @return array|RouteList
-     */
-    public static function createRouter($router){
-        $router[] = new Route('index.php', 'Index:index', Route::ONE_WAY);
-        $router[] = new Route('<action>', 'Index:index');
+	function match(IRequest $httpRequest){}
+
+	function constructUrl(Request $appRequest, Url $refUrl){}
+
+    public static function createRoutes(){
+		$router = new Nette\Application\Routers\RouteList();
+		$router[] = new Route('<presenter>[/<action>[/<id>]]', ['presenter' => 'Index', 'action' => 'index']);
         return $router;
     }
 
-    function match(Nette\Http\IRequest $httpRequest){ }
-
-    function constructUrl(Nette\Application\Request $appRequest, Nette\Http\Url $refUrl) { }
 }

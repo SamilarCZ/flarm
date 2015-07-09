@@ -3,7 +3,7 @@
 # enable cool URL
 
 RewriteEngine On
-#RewriteBase /www
+RewriteBase /flarm/www/
 
 # prevents files starting with dot to be viewed by browser
 RewriteRule /\.|^\. - [F]
