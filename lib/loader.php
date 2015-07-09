@@ -18,20 +18,18 @@
 	$configurator->setTempDirectory(__DIR__ . '/../temp');
 
 	$configurator->createRobotLoader()
-		->addDirectory(__DIR__. '/../app')
 		->addDirectory(__DIR__ . '/Nette')
 		->addDirectory(__DIR__ . '/FLaRM')
+		->addDirectory(__DIR__. '/../app')
 		->register();
 
 	$configurator->addConfig(__DIR__ . '/../app/config/config.neon');
 	$configurator->addConfig(__DIR__ . '/../app/config/config.local.neon');
 	$configurator->addConfig(__DIR__ . '/../app/config/flarm.neon');
-	$container = $configurator->createContainer();
-	$FLaRMContainer = new \FLaRM\DI\FLaRMContainer();
 
+	$container = $configurator->createContainer();
 	$router = App\RouterFactory::createRoutes();
 
-	$container->addService('FLaRMContainer', $FLaRMContainer);
 	$container->addService('router', $router);
 
 	return $container;

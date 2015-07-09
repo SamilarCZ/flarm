@@ -10,20 +10,21 @@
 
 	<title>{ifset title}{include title|striptags} | {/ifset}FLaRM Sandbox</title>
 
-	<link rel="stylesheet" href="{$basePath}/css/style.css">
+	<link rel="stylesheet" href="{$basePath}/css/kube.css">
+	<link rel="stylesheet" href="{$basePath}/css/main.css">
 	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
-	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
     {block scripts}{/block}
-	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+	{*<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>*}
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
 	<script src="//nette.github.io/resources/js/netteForms.min.js"></script>
-	<script src="{$basePath}/js/main.js"></script>
+	<script src="{$basePath}/js-kube/kube.js"></script>
     {*{block head}{/block}*}
 </head>
 
 <body>
-	<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
+		{include flashes.latte}
 
-	{include content}
-
+		{include content}
 </body>
 </html>
