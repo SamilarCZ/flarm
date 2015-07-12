@@ -7,7 +7,7 @@
  */
 
 	require_once 'Nette/loader.php';
-	require_once 'FLaRM/loader.php';
+
 
 	//Nette\Utils\SafeStream::register();
 	$configurator = new Nette\Configurator;
@@ -29,7 +29,7 @@
 
 	$container = $configurator->createContainer();
 	$router = App\RouterFactory::createRoutes();
-
+    require_once 'FLaRM/loader.php';
 	$container->addService('router', $router);
 
 	return $container;

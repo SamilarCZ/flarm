@@ -5,7 +5,7 @@
  * Copyright (c) 2015 Filip Lánský (http://filip-lansky.cz)
  */
 
-if (!class_exists('FLaRM\DI\AContainer')) {
-    class_alias('FLaRM\DI\AContainer', 'FLaRM\AContainer');
+if (!class_exists('FLaRM\DI\FLaRMContainer')) {
+    class_alias('FLaRM\DI\FLaRMContainer', 'FLaRM\FLaRMContainer');
 }
 require_once __DIR__ . '/shortcuts.php';
