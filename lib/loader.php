@@ -30,6 +30,9 @@
 	$container = $configurator->createContainer();
 	$router = App\RouterFactory::createRoutes();
     require_once 'FLaRM/loader.php';
+    $flarmContainer = new \FLaRM\DI\FLaRMContainer($configurator);
+    $flarmCompiler = new \FLaRM\DI\FLaRMCompiler($flarmContainer, $container, $configurator);
+    $flarmCompiler->run(true);
 	$container->addService('router', $router);
 
 	return $container;

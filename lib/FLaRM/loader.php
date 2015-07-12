@@ -8,4 +8,7 @@
 if (!class_exists('FLaRM\DI\FLaRMContainer')) {
     class_alias('FLaRM\DI\FLaRMContainer', 'FLaRM\FLaRMContainer');
 }
+if (!class_exists('FLaRM\DI\FLaRMCompiler')) {
+    class_alias('FLaRM\DI\FLaRMCompiler', 'FLaRM\FLaRMCompiler');
+}
 require_once __DIR__ . '/shortcuts.php';
