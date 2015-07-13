@@ -8,7 +8,8 @@
 namespace FLaRM\DI;
 
 use FLaRM;
-use Nette\Configurator;
+use Nette\Database\Connection;
+use Nette\Database\Context;
 use Nette\DI\Container;
 
 
@@ -18,20 +19,35 @@ use Nette\DI\Container;
  * @author     Filip Lánský
  */
 class FLaRMContainer extends Container{
+	/**
+	 * @var array|Container
+	 */
+    protected $netteContainer;
+	/**
+	 * @var FLaRMConfigHelper
+	 */
+	private $FLaRMConfigHelper;
 
-    protected $netteContainer = [];
-    public $parameters = [];
-    /**
-     * @var Configurator
-     */
-    private $configurator;
+	public function inject(FLaRMConfigHelper $FLaRMConfigHelper){
+		$this->FLaRMConfigHelper = $FLaRMConfigHelper;
+	}
 
-    public function __construct(Configurator $configurator = null){
+    public function __construct(Container $container){
         parent::__construct();
-        if(isset($configurator)) {
-            $this->configurator = $configurator;
-            $this->netteContainer = $this->configurator->createContainer();
-            $this->parameters = $this->netteContainer->parameters;
-        }
-    }
+		$this->netteContainer = $container;
+		$this->parameters = $this->netteContainer->parameters;
+	}
+
+	function createConnection(){
+//		dump($this->FLaRMConfigHelper);
+//		return new Connection(
+//			$this->FLaRMConfigHelper->dsn,
+//			$this->FLaRMConfigHelper->user,
+//			$this->FLaRMConfigHelper->password
+//		);
+	}
+
+	public function getParameters(){
+		return $this->parameters;
+	}
 }

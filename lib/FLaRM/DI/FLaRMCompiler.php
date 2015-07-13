@@ -8,6 +8,7 @@
 namespace FLaRM\DI;
 
 use FLaRM;
+use Nette\Database\Connection;
 
 
 /**
@@ -16,19 +17,25 @@ use FLaRM;
  * @author     Filip Lánský
  */
 class FLaRMCompiler extends FLaRMContainer{
-    /**
-     * @var FLaRMContainer
-     */
-    protected $flarmContainer;
-
+	/**
+	 * @var Connection
+	 */
     private $connection;
+	/**
+	 * @var FLaRMContainer
+	 */
+	private $FLaRMContaier;
+
+	public $parameters = [];
+
     public function __construct(FLaRMContainer $FLaRMContainer){
-        parent::__construct();
-        $this->flarmContainer = $FLaRMContainer;
-        $this->connection = $this->flarmContainer->netteContainer->getByType('\Nette\Database\Connection');
-    }
+		$this->parameters = $FLaRMContainer->getParameters();
+		$this->FLaRMContaier = $FLaRMContainer;
+		$this->connection = $this->FLaRMContaier->createConnection();
+	}
 
     public function run($forceReload = false){
+		dump($this->connection);
         if(isset($this->connection)) {
             if(!file_exists($this->getModelDirectory(). '/BaseModel.php') || $forceReload === true){
                 $baseModelFile = fopen($this->getModelDirectory() . '/BaseModel.php', 'w');
@@ -36,24 +43,29 @@ class FLaRMCompiler extends FLaRMContainer{
 '<?php
     namespace App\Model;
 
-    use Nette;
-    use Nette\Database\Connection;
+    use Nette\Database\Context;
+	use Nette\Database\Table\ActiveRow;
+	use Nette\Database\Table\IRow;
+	use Nette\Database\Table\Selection;
+	use Nette\InvalidStateException;
+	use Nette\Object;
+	use Traversable;
 
-    abstract class BaseModel extends Nette\Object
+    abstract class BaseModel extends Object
     {
-        /** @var Connection */
-        protected $db;
+        /** @var Context */
+        protected $database;
 
         /** @var string */
         private $tableName;
 
 
         /**
-         * @param $connection Connection
+         * @param $database Context
          */
-        public function __construct(Connection $connection)
-        {
-            $this->db = $connection;
+        public function __construct(Context $database){
+            $this->database = $database;
+            $this->setDatabase($database);
             $this->tableName = $this->tableNameByClass(get_class($this));
         }
 
@@ -64,8 +76,7 @@ class FLaRMCompiler extends FLaRMContainer{
          * @return string
          * @result: Pages => pages, ArticleTag => article_tag
          */
-        private function tableNameByClass($className)
-        {
+        private function tableNameByClass($className){
             $tableName = explode("\\\\", $className);
             $tableName = lcfirst(array_pop($tableName));
 
@@ -76,33 +87,193 @@ class FLaRMCompiler extends FLaRMContainer{
 
             return strtr($tableName, $replace);
         }
-
-        public function get(){}
-        public function getAll(){}
-        public function fetch(){}
-        public function fetchAll(){}
+		// TODO : MAKE THIS METHODS
         public function truncate(){}
-        public function update(){}
         public function delete(){}
 
         // přidáme vlastní metody: insert, update, delete, count,
         // fetchSingle, fetchPairs atd.
+		/**
+		 * Table rows count getter
+		 *
+		 * @return integer
+		 */
+		public function count(){
+			return $this->getTable()->count();
+		}
 
+		/**
+		 * Return item by primary key
+		 *
+		 * @param integer $key
+		 * @return ActiveRow
+		 */
+		public function get($key){
+			return $this->getTable()->get($key);
+		}
+
+		/**
+		 * Alias of <\b>getTable\<\/b>
+		 *
+		 * @return Selection
+		 */
+		public function getAll(){
+			return $this->getTable();
+		}
+
+		/**
+		 * Vrací vyfiltrované záznamy na základě vstupních parametrů
+		 * @param string $key
+		 * @param string $val
+		 * @return \Nette\Database\Table\Selection
+		 */
+		public function fetchPairs($key=null,$val=null){
+			return $this->getTable()->fetchPairs($key,$val);
+
+		}
+
+		public function fetchAssoc($path){
+			return $this->getTable()->fetchAssoc($path);
+		}
+
+		public function findBy($by){
+			return $this->getTable()->where($by);
+		}
+
+		public function findOneBy($by){
+			return $this->getTable()->where($by)->fetch();
+		}
+
+		/**
+		 * Table getter
+		 *
+		 * @return Selection
+		 */
+		public function getTable(){
+			return $this->getDatabase()->table($this->getTableName());
+		}
+
+		/**
+		 * Inserts row in a table.
+		 *
+		 * @param  array|Traversable|Selection array($column => $value)|\Traversable|Selection for INSERT ... SELECT
+		 * @return IRow|int|bool Returns IRow or number of affected rows for Selection or table without primary key
+		 */
+		public function insert($data){
+			return $this->getTable()->insert($data);
+		}
+
+		/**
+		 * Sets limit clause, more calls rewrite old values.
+		 *
+		 * @param integer
+		 * @param integer [OPTIONAL]
+		 * @return Selection
+		 */
+		public function limit($limit, $offset = NULL){
+			return $this->getTable()->limit($limit, $offset);
+		}
+
+		/**
+		 * Zkratka pro where
+		 *
+		 * @param string $order
+		 * @return Selection
+		 */
+		public function order($order){
+			return $this->getTable()->order($order);
+		}
+
+		public function group($order){
+			return $this->getTable()->group($order);
+		}
+		/**
+		 * Update data in database
+		 *
+		 * @param array $data
+		 * @return Selection
+		 */
+		public function update($data){
+			return $this->getTable()->update($data);
+		}
+
+		/**
+		 * Search for row in the table
+		 *
+		 * @param string $condition
+		 * @param array $parameters
+		 * @return Selection
+		 */
+		public function where($condition, $parameters = array()){
+			return call_user_func_array(array($this->getTable(), \'where\'), func_get_args());
+		}
+
+		// <\editor-fold defaultstate="collapsed" desc="Getters & Setters">
+		/**
+		 * Database getter
+		 *
+		 * @return Context
+		 */
+		public function getDatabase(){
+			return $this->database;
+		}
+
+		/**
+		 * Database setter
+		 *
+		 * @param Context $database
+		 * @return BaseModel Provides fluent interface
+		 * @throws InvalidStateException
+		 */
+		public function setDatabase(Context $database){
+			if ($this->database !== NULL)
+			{
+				throw new InvalidStateException(\'Database has already been set\');
+			}
+			$this->database = $database;
+			return $this;
+		}
+
+		/**
+		 * Table name getter
+		 *
+		 * @return string
+		 */
+		public function getTableName(){
+			return $this->tableName;
+		}
+
+		/**
+		* Table to table relation
+		* @param $table string
+		* @param $column string
+		* @return array|null
+		*/
+		public function ref($table, $column){
+			return $this->getTable()->related($table)->through($column);
+		}
+		// <\/editor-fold>
     }
 '
                     );
             }
+			$servicesArray = [];
             foreach ($this->getTableNamesForCompiler() as $table) {
-                dump($table);
-                dump($this->getColumnNamesInGivenTable($table['name']));
                 // generate model of tables here
                 if (!file_exists($this->getModelDirectory() . '/' . $this->getTableNameToClassName($table['name']) . '.php') || $forceReload === true){
-                    $modelFile = fopen($this->getModelDirectory() . '/' . $this->getTableNameToClassName($table['name']) . '.php', 'w');
+                    $servicesArray[] = $this->getTableNameToClassName($table['name']) . ': App\\Model\\' . $this->getTableNameToClassName($table['name']) . '
+';
+					$modelFile = fopen($this->getModelDirectory() . '/' . $this->getTableNameToClassName($table['name']) . '.php', 'w');
                     $modelFileHeader =
 '<?php
     namespace App\Model;
 
     class ' . $this->getTableNameToClassName($table['name']) . ' extends BaseModel{
+
+		/** @var string */
+		protected $table = \'' . $table['name'] . '\';
+
+		/** property */
 
 ';
                     fputs($modelFile, $modelFileHeader);
@@ -116,6 +287,8 @@ class FLaRMCompiler extends FLaRMContainer{
                     }
                     fputs($modelFile,
 '
+
+		/** end property */
 
 ');
                     // generate native column methods
@@ -131,13 +304,23 @@ class FLaRMCompiler extends FLaRMContainer{
 ');
                     }
                     fputs($modelFile,
-'   }
+'	}
 
 ');
                 }
-//                dump($table);
             }
-            return true;
+			$flarmNeon = fopen($this->getConfigDirectory() . '/flarm.neon', 'w');
+			fputs($flarmNeon, '
+#
+# WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+parameters:
+services:
+');
+			foreach($servicesArray as $serviceString) {
+				fputs($flarmNeon, '		' . $serviceString);
+			}
+            return $servicesArray;
         }
         return false;
     }
@@ -151,7 +334,11 @@ class FLaRMCompiler extends FLaRMContainer{
     }
 
     private function getModelDirectory(){
-        return $this->flarmContainer->parameters['appDir'] . '/../app/model';
+        return $this->parameters['appDir'] . '/../app/model';
+    }
+
+    private function getConfigDirectory(){
+        return $this->parameters['appDir'] . '/../app/config';
     }
 
     private function getTableNameToClassName($table){

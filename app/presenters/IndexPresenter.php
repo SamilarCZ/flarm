@@ -2,11 +2,11 @@
 
 	namespace App\Presenters;
 
-	use Nette\Database\Connection;
+	use App\Model\UserModel;
 	use Nette\Database\Context;
 	use Nette\DI\Container;
-	use Nette\DI\ServiceCreationException;
 	use Nette\Framework;
+	use Nette\Neon\Exception;
 
 
 	/**
@@ -22,7 +22,7 @@
 		 */
 		private $context;
 
-		public function inject(Container $container, Context $context) {
+		public function __construct(Container $container, Context $context){
 			$this->netteContainer = $container;
 			$this->context = $context;
 		}

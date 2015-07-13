@@ -4,6 +4,10 @@
 #
 parameters:
 	debugMode: true
+	db:
+		user: root
+		pass: root
+		dsn : 'mysql:host=127.0.0.1;dbname=snackhostbo'
 php:
 	date.timezone: Europe/Prague
 
@@ -17,5 +21,5 @@ application:
 session:
 	expiration: 14 days
 
-
 services:
+	configFLaRM: \FLaRM\DI\FLaRMConfigHelper("mysql:host=127.0.0.1;dbname=snackhostbo", "root", "root")

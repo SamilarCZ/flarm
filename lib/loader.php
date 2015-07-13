@@ -23,16 +23,15 @@
 		->addDirectory(__DIR__. '/../app')
 		->register();
 
-	$configurator->addConfig(__DIR__ . '/../app/config/config.neon');
 	$configurator->addConfig(__DIR__ . '/../app/config/config.local.neon');
+	$configurator->addConfig(__DIR__ . '/../app/config/config.neon');
 	$configurator->addConfig(__DIR__ . '/../app/config/flarm.neon');
 
 	$container = $configurator->createContainer();
 	$router = App\RouterFactory::createRoutes();
     require_once 'FLaRM/loader.php';
-    $flarmContainer = new \FLaRM\DI\FLaRMContainer($configurator);
-    $flarmCompiler = new \FLaRM\DI\FLaRMCompiler($flarmContainer, $container, $configurator);
-    $flarmCompiler->run(true);
+    $flarmCompiler = new \FLaRM\DI\FLaRMCompiler(new \FLaRM\DI\FLaRMContainer($container));
+    $addServices = $flarmCompiler->run(true);
 	$container->addService('router', $router);
 
 	return $container;
