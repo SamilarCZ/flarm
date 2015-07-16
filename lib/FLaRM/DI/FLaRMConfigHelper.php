@@ -8,6 +8,7 @@
 namespace FLaRM\DI;
 
 use FLaRM;
+use Nette\Environment;
 use Nette\Object;
 
 /**
@@ -19,8 +20,8 @@ class FLaRMConfigHelper extends Object{
 	public $password;
 
 	public function __construct(array $parameters){
+        $parameters = Environment::getConfig('db');
 		list($this->dsn, $this->user, $this->password) = $parameters;
-		dump($parameters);
 	}
 
 	public function getDatabaseConnectionParameters(){

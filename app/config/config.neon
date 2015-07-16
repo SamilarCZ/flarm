@@ -4,10 +4,7 @@
 #
 parameters:
 	debugMode: true
-	db:
-		user: root
-		pass: root
-		dsn : 'mysql:host=127.0.0.1;dbname=snackhostbo'
+
 php:
 	date.timezone: Europe/Prague
 

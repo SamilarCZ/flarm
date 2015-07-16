@@ -1,8 +1,7 @@
 parameters:
-
-database:
-	dsn: 'mysql:host=127.0.0.1;dbname=NAME-OF-DATABASE'
-	user: USER-NAME
-	password: PASSWORD
-#	options:
-#		lazy: yes
+    database:
+        dsn: 'mysql:host=127.0.0.1;dbname=flarm'
+        user: root
+        password:
+        options:
+            lazy: yes

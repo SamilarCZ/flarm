@@ -28,18 +28,15 @@ class FLaRMContainer extends Container{
 	 */
 	private $FLaRMConfigHelper;
 
-	public function inject(FLaRMConfigHelper $FLaRMConfigHelper){
-		$this->FLaRMConfigHelper = $FLaRMConfigHelper;
-	}
-
-    public function __construct(Container $container){
+    public function __construct(Container $container, FLaRMConfigHelper $FLaRMConfigHelper){
         parent::__construct();
 		$this->netteContainer = $container;
 		$this->parameters = $this->netteContainer->parameters;
+        $this->FLaRMConfigHelper = $FLaRMConfigHelper->getDatabaseConnectionParameters();
 	}
 
 	function createConnection(){
-//		dump($this->FLaRMConfigHelper);
+		dump($this->FLaRMConfigHelper);
 //		return new Connection(
 //			$this->FLaRMConfigHelper->dsn,
 //			$this->FLaRMConfigHelper->user,
