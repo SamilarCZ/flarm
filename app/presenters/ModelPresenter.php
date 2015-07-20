@@ -11,22 +11,19 @@
 	 * Database MODEL layer presenter.
 	 */
 	class ModelPresenter extends BasePresenter {
-//		/**
-//		 * @var UserModel
-//		 */
-//		public $userModel;
 		/**
-		 * @var FLaRMContainer
+		 * @var UserModel
 		 */
-		private $FLaRMContainer;
+		public $userModel;
 
-		public function __construct(FLaRMContainer $FLaRMContainer){
-			$this->FLaRMContainer = $FLaRMContainer;
+		public function __construct(UserModel $userModel){
+			$this->userModel = $userModel;
 		}
 
-		public function renderDemo() {
+		public function actionDemo() {
 			echo 'XXXX';
-			dump($this->FLaRMContainer);
+			dump($this->userModel);
+			dump($this->userModel->where('')->fetch()->getPrimary());
 //			dump($this->getPresenter());
 			//dump($this->userModel->getAll());
 		}

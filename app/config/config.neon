@@ -3,7 +3,7 @@
 # http://nette.org/security-warning
 #
 parameters:
-	debugMode: true
+	debugMode: false
 
 php:
 	date.timezone: Europe/Prague
@@ -19,4 +19,7 @@ session:
 	expiration: 14 days
 
 services:
-	configFLaRM: \FLaRM\DI\FLaRMConfigHelper("mysql:host=127.0.0.1;dbname=snackhostbo", "root", "root")
+	configFLaRM: \FLaRM\DI\FLaRMConfigHelper
+	Context: Nette\Database\Context
+	Connection: Nette\Database\Connection(@configFLaRM::dsn, @configFLaRM::user, @configFLaRM::password)
+	Structure: Nette\Database\Structure

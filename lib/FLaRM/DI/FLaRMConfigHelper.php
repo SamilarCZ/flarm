@@ -15,16 +15,29 @@ use Nette\Object;
  * @author     Filip Lánský
  */
 class FLaRMConfigHelper extends Object{
-	public $dsn;
 	public $user;
 	public $password;
+	public $host;
+	public $driver;
+	public $dbname;
+	public $dsn;
 
-	public function __construct(array $parameters){
-        $parameters = Environment::getConfig('db');
-		list($this->dsn, $this->user, $this->password) = $parameters;
+	public function __construct(array $parameters = []){
+        if(count($parameters) <= 0) $parameters = iterator_to_array(Environment::getConfig('database'));
+		foreach($parameters as $key => $value)
+			if(property_exists($this, $key)) $this->{$key} = $value;
+		$this->dsn = $this->makeDsn();
 	}
 
 	public function getDatabaseConnectionParameters(){
-		return ['dsn' => $this->dsn, 'user' => $this->user, 'password' => $this->password];
+		return ['dsn' => $this->makeDsn(), 'user' => $this->user, 'password' => $this->password];
+	}
+
+	public function getAll(){
+		return clone $this;
+	}
+
+	public function makeDsn(){
+		return (string) $this->driver . ':host=' . $this->host . ';dbname=' . $this->dbname;
 	}
 }

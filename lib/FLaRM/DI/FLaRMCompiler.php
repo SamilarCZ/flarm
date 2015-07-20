@@ -35,7 +35,6 @@ class FLaRMCompiler extends FLaRMContainer{
 	}
 
     public function run($forceReload = false){
-		dump($this->connection);
         if(isset($this->connection)) {
             if(!file_exists($this->getModelDirectory(). '/BaseModel.php') || $forceReload === true){
                 $baseModelFile = fopen($this->getModelDirectory() . '/BaseModel.php', 'w');
@@ -65,7 +64,6 @@ class FLaRMCompiler extends FLaRMContainer{
          */
         public function __construct(Context $database){
             $this->database = $database;
-            $this->setDatabase($database);
             $this->tableName = $this->tableNameByClass(get_class($this));
         }
 
@@ -307,19 +305,29 @@ class FLaRMCompiler extends FLaRMContainer{
 '	}
 
 ');
-                }
-            }
+				}
+			}
+			@chmod($this->getConfigDirectory() . '/flarm.neon', 0777);
+			$flarmNeonOld = file($this->getConfigDirectory() . '/flarm.neon');
 			$flarmNeon = fopen($this->getConfigDirectory() . '/flarm.neon', 'w');
+			if(isset($flarmNeonOld)){
+				$flarmNeonPuts = false;
+				foreach($flarmNeonOld as $value){
+					if(trim($value) !== 'services:') $flarmNeonPuts .= $value;
+					else break;
+				}
+				if(strstr(substr($flarmNeonPuts,1), PHP_EOL) !== false)
+					fputs($flarmNeon, substr($flarmNeonPuts,0,-1));
+				else
+					fputs($flarmNeon, $flarmNeonPuts);
+			}
 			fputs($flarmNeon, '
-#
-# WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
-#
-parameters:
 services:
 ');
 			foreach($servicesArray as $serviceString) {
-				fputs($flarmNeon, '		' . $serviceString);
+				fputs($flarmNeon, '	' . $serviceString);
 			}
+			@chmod($this->getConfigDirectory() . '/flarm.neon', 0755);
             return $servicesArray;
         }
         return false;

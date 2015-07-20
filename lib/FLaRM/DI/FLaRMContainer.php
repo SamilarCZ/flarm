@@ -32,16 +32,15 @@ class FLaRMContainer extends Container{
         parent::__construct();
 		$this->netteContainer = $container;
 		$this->parameters = $this->netteContainer->parameters;
-        $this->FLaRMConfigHelper = $FLaRMConfigHelper->getDatabaseConnectionParameters();
+        $this->FLaRMConfigHelper = $FLaRMConfigHelper;
 	}
 
 	function createConnection(){
-		dump($this->FLaRMConfigHelper);
-//		return new Connection(
-//			$this->FLaRMConfigHelper->dsn,
-//			$this->FLaRMConfigHelper->user,
-//			$this->FLaRMConfigHelper->password
-//		);
+		return new Connection(
+			$this->FLaRMConfigHelper->dsn,
+			$this->FLaRMConfigHelper->user,
+			$this->FLaRMConfigHelper->password
+		);
 	}
 
 	public function getParameters(){
