@@ -2,6 +2,8 @@
 
 	namespace App\Presenters;
 
+	use App\Model\FoldersModel;
+	use App\Model\PlaylistModel;
 	use Nette\Database\Context;
 	use Nette\DI\Container;
 
@@ -18,14 +20,29 @@
 		 * @var Context
 		 */
 		private $context;
+		/**
+		 * @var FoldersModel
+		 */
+		private $foldersModel;
+		/**
+		 * @var PlaylistModel
+		 */
+		private $playlistModel;
 
-		public function __construct(Container $container, Context $context){
+		public function __construct(Container $container, Context $context, FoldersModel $foldersModel, PlaylistModel $playlistModel){
 			$this->netteContainer = $container;
 			$this->context = $context;
+			$this->foldersModel = $foldersModel;
+			$this->playlistModel = $playlistModel;
+		}
+
+		public function renderIndex(){
+			$this->redirect('dashboard');
 		}
 
 		public function renderDashboard() {
-
+			$this->template->video1 = 'a';
+			dump($this->foldersModel->getId());
 		}
 
 	}

@@ -8,9 +8,11 @@ parameters:
 		host-ip: 127.0.0.1
 		dbname: flarm
 		user: root
-		password:
+		password: root
 		options:
 			lazy: yes
 
 services:
-
+	FoldersModel: App\Model\FoldersModel
+	PlaylistModel: App\Model\PlaylistModel
+	UserModel: App\Model\UserModel

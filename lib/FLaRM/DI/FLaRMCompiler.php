@@ -56,7 +56,7 @@ class FLaRMCompiler extends FLaRMContainer{
         protected $database;
 
         /** @var string */
-        private $tableName;
+        protected $tableName;
 
 
         /**
@@ -82,7 +82,8 @@ class FLaRMCompiler extends FLaRMContainer{
             foreach (range("A", "Z") as $letter) {
                 $replace[$letter] = "_" . strtolower($letter);
             }
-
+			$tableName = str_replace("Model","",$tableName);
+			$tableName = str_replace("model","",$tableName);
             return strtr($tableName, $replace);
         }
 		// TODO : MAKE THIS METHODS
@@ -269,7 +270,7 @@ class FLaRMCompiler extends FLaRMContainer{
     class ' . $this->getTableNameToClassName($table['name']) . ' extends BaseModel{
 
 		/** @var string */
-		protected $table = \'' . $table['name'] . '\';
+		protected $tableName = \'' . $table['name'] . '\';
 
 		/** property */
 
