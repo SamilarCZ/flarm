@@ -1,18 +1,1 @@
-#
-# WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
-#
-parameters:
-	database:
-		driver: mysql
-		host: localhost
-		host-ip: 127.0.0.1
-		dbname: flarm
-		user: root
-		password: root
-		options:
-			lazy: yes
-
-services:
-	FoldersModel: App\Model\FoldersModel
-	PlaylistModel: App\Model\PlaylistModel
-	UserModel: App\Model\UserModel
+## WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!#parameters:	database:		driver: mysql		host: localhost		host-ip: 127.0.0.1		dbname: flarm		user: root		password:		options:			lazy: yes	teve:		base-folders:			- e:\Movies\

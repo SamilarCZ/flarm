@@ -21,7 +21,7 @@
 		->addDirectory(__DIR__ . '/Nette')
 		->addDirectory(__DIR__ . '/FLaRM')
 		->addDirectory(__DIR__. '/../app')
-		->addDirectory(__DIR__. '/../app/model')
+//		->addDirectory(__DIR__. '/../app/model')
 		->register();
 
 	$configurator->addConfig(__DIR__ . '/../app/config/config.neon');
