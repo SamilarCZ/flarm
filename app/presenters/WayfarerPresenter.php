@@ -2,29 +2,22 @@
 
 	namespace App\Presenters;
 
-	use App\Model\BlocksModel;
-	use App\Model\FoldersModel;
-	use App\Model\PlaylistModel;
+	use App\Model\ModelFactoryWrapper;
 	use Nette\Database\Context;
-	use Nette\DI\Container;
 
 
 	/**
-	 * Teve presenter. The multimedial center by Samilar
+	 * Wayfarer test presenter.
 	 */
 	class WayfarerPresenter extends BasePresenter {
-		/**
-		 * @var Container
-		 */
-		private $netteContainer;
 		/**
 		 * @var Context
 		 */
 		private $context;
 		/**
-		 * @var BlocksModel
+		 * @var ModelFactoryWrapper
 		 */
-		private $blocksModel;
+		private $modelFactoryWrapper;
 
 		private $debug = false;
 		private $debug_lite = false;
@@ -32,10 +25,9 @@
 		private $debug_time_end;
 		private $debug_time_show;
 
-		public function __construct(Container $container, Context $context, BlocksModel $blocksModel){
-			$this->netteContainer = $container;
+		public function __construct(Context $context, ModelFactoryWrapper $modelFactoryWrapper){
 			$this->context = $context;
-			$this->blocksModel = $blocksModel;
+			$this->modelFactoryWrapper = $modelFactoryWrapper;
 		}
 
 		public function renderIndex(){
@@ -43,6 +35,33 @@
 		}
 
 		public function renderDashboard() {
+			$this->template->draw = '';
+			echo '!ALIVE!';
+			$testProductArray['id'] = 20;
+			$testProductArray['name'] = 'test';
+			$testProductArray['price'] = 154;
+			dump($this->modelFactoryWrapper->blocksModel()->setArrayToBlocksModel($testProductArray));
+			dump($this->modelFactoryWrapper->blocksModel()->loadAll());
+//			$block1 = $this->modelFactoryWrapper->blocksModel();
+//			$block2 = $this->modelFactoryWrapper->blocksModel()->setId(48);
+//			$block3 = $this->modelFactoryWrapper->blocksModel()->getId();
+//			$block4 = $this->modelFactoryWrapper->blocksModel()->load();
+//			$block5 = $this->modelFactoryWrapper->blocksModel()->createEmptyModel();
+//			$newProduct = $this->modelFactoryWrapper->productModel()->createEmptyModel();
+//			$products = $this->modelFactoryWrapper->productModel()->getAll();
+//			dump($block1, $block2, $block3, $block4, $block5, $newProduct, $products);
+//			$newProduct->setName('test');
+//			$newProduct->setPrice(100);
+//			dump($newProduct);
+//			$newProduct->save();
+//			dump($newProduct, $products);
+//			$products2 = $this->modelFactoryWrapper->productModel()->getAll();
+//			dump($products2);
+
+
+
+
+
 
 			/*
 			 * DROP TABLE IF EXISTS `blocks`;
@@ -68,52 +87,55 @@ CREATE TABLE `blocks` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 			 * */
 
-			$this->debug = true;
-//			$this->debug_lite = false;
-//			ini_set('memory_limit', '1024M');
-			set_time_limit(0);
-			if($this->debug === true || $this->debug_lite === true || $this->debug_time_show === true) $this->debug_time_start = microtime(true);
-			$desiredArray = [];
-//			/** minimalni hodnota ! (pokud se jedna o hranici generator vygeneruje vzdy tak, aby byli pozadovane ID existujici) **/
-//			$desiredLastBlockId = 10000;
-//			for($i=0;$i<=($desiredLastBlockId/10000);$i++){
-//				$desiredArray[] = $i*10000;
+//			$this->debug = true;
+////			$this->debug_lite = false;
+////			ini_set('memory_limit', '1024M');
+//			set_time_limit(0);
+//			if($this->debug === true || $this->debug_lite === true || $this->debug_time_show === true) $this->debug_time_start = microtime(true);
+//			$desiredArray = [];
+////			/** minimalni hodnota ! (pokud se jedna o hranici generator vygeneruje vzdy tak, aby byli pozadovane ID existujici) **/
+////			$desiredLastBlockId = 10000;
+////			for($i=0;$i<=($desiredLastBlockId/10000);$i++){
+////				$desiredArray[] = $i*10000;
+////			}
+////			$this->template->draw = $this->drawStoredBlock();
+//			$this->template->draw = '';
+////			dump($this->modelWrapper->get);
+//			if(count($desiredArray) > 0) {
+//				foreach ($desiredArray as $iteration) {
+//					$blockArray = $this->generateBlockArray($iteration, 10, 25);
+//					foreach ($blockArray as $row => $value) {
+//						foreach ($value as $col => $value2) {
+//							$newBlock['id'] = $value2['block'];
+//							if (isset($value2['links']['link_1']['block'])) $newBlock['link_1'] = $value2['links']['link_1']['block'];
+//							if (isset($value2['links']['link_2']['block'])) $newBlock['link_2'] = $value2['links']['link_2']['block'];
+//							if (isset($value2['links']['link_3']['block'])) $newBlock['link_3'] = $value2['links']['link_3']['block'];
+//							if (isset($value2['links']['link_4']['block'])) $newBlock['link_4'] = $value2['links']['link_4']['block'];
+//							if (isset($value2['links']['link_5']['block'])) $newBlock['link_5'] = $value2['links']['link_5']['block'];
+//							if (isset($value2['links']['link_6']['block'])) $newBlock['link_6'] = $value2['links']['link_6']['block'];
+//							if (isset($value2['links']['link_7']['block'])) $newBlock['link_7'] = $value2['links']['link_7']['block'];
+//							if (isset($value2['links']['link_8']['block'])) $newBlock['link_8'] = $value2['links']['link_8']['block'];
+//							$inserted = $this->blocksModel->insert($newBlock);
+////							dump($inserted);
+//							echo 'inserted block ID: ' . $inserted->getPrimary() . '<br />';
+////							if ($inserted->getPrimary() % 100 === 0) {
+////								echo 'must sleep now for few seconds ...<br />';
+////								sleep(1);
+////							}
+//							/** DEBUG **/
+//							if ($this->debug || $this->debug_lite === true) {
+//								$memory_usage_mb = round((memory_get_usage() / 1000000), 2);
+//								echo 'Inserting into database consumes ' . $memory_usage_mb . ' MB usage<br />';
+//							}
+//							/** DEBUG **/
+//							ob_flush();
+//							flush();
+//						}
+//					}
+//					if ($this->debug === true || $this->debug_lite === true || $this->debug_time_show === true) $this->debug_time_end = microtime(true);
+//					if ($this->debug === true || $this->debug_lite === true || $this->debug_time_show === true) echo 'Generation of world takes : ' . ($this->debug_time_end - $this->debug_time_start) . ' sec<br />';
+//				}
 //			}
-			$this->template->draw = $this->drawStoredBlock();
-			if(count($desiredArray) > 0) {
-				foreach ($desiredArray as $iteration) {
-					$blockArray = $this->generateBlockArray($iteration, 10, 25);
-					foreach ($blockArray as $row => $value) {
-						foreach ($value as $col => $value2) {
-							$newBlock['id'] = $value2['block'];
-							if (isset($value2['links']['link_1']['block'])) $newBlock['link_1'] = $value2['links']['link_1']['block'];
-							if (isset($value2['links']['link_2']['block'])) $newBlock['link_2'] = $value2['links']['link_2']['block'];
-							if (isset($value2['links']['link_3']['block'])) $newBlock['link_3'] = $value2['links']['link_3']['block'];
-							if (isset($value2['links']['link_4']['block'])) $newBlock['link_4'] = $value2['links']['link_4']['block'];
-							if (isset($value2['links']['link_5']['block'])) $newBlock['link_5'] = $value2['links']['link_5']['block'];
-							if (isset($value2['links']['link_6']['block'])) $newBlock['link_6'] = $value2['links']['link_6']['block'];
-							if (isset($value2['links']['link_7']['block'])) $newBlock['link_7'] = $value2['links']['link_7']['block'];
-							if (isset($value2['links']['link_8']['block'])) $newBlock['link_8'] = $value2['links']['link_8']['block'];
-							$inserted = $this->blocksModel->insert($newBlock);
-							echo 'inserted block ID: ' . $inserted->getPrimary() . '<br />';
-							if ($inserted->getPrimary() % 100 === 0) {
-								echo 'must sleep now for few seconds ...<br />';
-								sleep(1);
-							}
-							/** DEBUG **/
-							if ($this->debug || $this->debug_lite === true) {
-								$memory_usage_mb = round((memory_get_usage() / 1000000), 2);
-								echo 'Inserting into database consumes ' . $memory_usage_mb . ' MB usage<br />';
-							}
-							/** DEBUG **/
-							ob_flush();
-							flush();
-						}
-					}
-					if ($this->debug === true || $this->debug_lite === true || $this->debug_time_show === true) $this->debug_time_end = microtime(true);
-					if ($this->debug === true || $this->debug_lite === true || $this->debug_time_show === true) echo 'Generation of world takes : ' . ($this->debug_time_end - $this->debug_time_start) . ' sec<br />';
-				}
-			}
 		}
 
 		private function generateBlockArray($block_id = 1, $rows = 100, $cols = 50){
@@ -212,7 +234,7 @@ CREATE TABLE `blocks` (
 		}
 
 		public function drawStoredBlock(){
-			$blockModel = $this->blocksModel->getAll();
+			$blockModel = $this->modelFactoryWrapper->getAll();
 			$paint = '<table>' . PHP_EOL;
 			foreach($blockModel as $key => $val){
 				if($val['id'] === 1) $paint .= '<tr>' . PHP_EOL;
@@ -224,19 +246,27 @@ CREATE TABLE `blocks` (
 					$paint .= '<td style="border: 1px solid black; text-align: center; ">' .  PHP_EOL;
 						$paint .= '<table>' .  PHP_EOL;
 							$paint .= '<tr style="height: 2em;">' .  PHP_EOL;
-								$paint .= '<td style="width:33%;border: 1px solid black; text-align: center; ' . (($val['link_1'])?'':' background-color:red;') . '">[NE]' . (($val['link_1'])? '( : ' . $val['link_1'] . ')' : '') .'</td>' .  PHP_EOL;
-								$paint .= '<td style="width:33%;border: 1px solid black; text-align: center; ' . (($val['link_2'])?'':' background-color:red;') . '">[N]' . (($val['link_2'])? '( : ' . $val['link_2'] . ')' : '') .'</td>' .  PHP_EOL;
-								$paint .= '<td style="width:33%;border: 1px solid black; text-align: center; ' . (($val['link_3'])?'':' background-color:red;') . '">[NW]' . (($val['link_3'])? '( : ' . $val['link_3'] . ')' : '') .'</td>' .  PHP_EOL;
+//								echo $val['link_1'] . '==' . count($blockModel) . ' ' . var_dump(($val['link_1']) || ($val['link_1']*1 == count($blockModel)));
+//								echo ' ' . $val['link_2'] . '==' . count($blockModel) . ' ' . var_dump(($val['link_2']) || ($val['link_2']*1 == count($blockModel)));
+//								echo ' ' . $val['link_3'] . '==' . count($blockModel) . ' ' . var_dump(($val['link_3']) || ($val['link_3']*1 == count($blockModel)));
+//								echo ' ' . $val['link_4'] . '==' . count($blockModel) . ' ' . var_dump(($val['link_4']) || ($val['link_4']*1 == count($blockModel)));
+//								echo ' ' . $val['link_5'] . '==' . count($blockModel) . ' ' . var_dump(($val['link_5']) || ($val['link_5']*1 == count($blockModel)));
+//								echo ' ' . $val['link_6'] . '==' . count($blockModel) . ' ' . var_dump(($val['link_6']) || ($val['link_6']*1 == count($blockModel)));
+//								echo ' ' . $val['link_7'] . '==' . count($blockModel) . ' ' . var_dump(($val['link_7']) || ($val['link_7']*1 == count($blockModel)));
+//								echo ' ' . $val['link_8'] . '==' . count($blockModel) . ' ' . var_dump(($val['link_8']) || ($val['link_8']*1 == count($blockModel))) . '<br />';
+								$paint .= '<td style="width:33%;border: 1px solid black; text-align: center; ' . ((($val['link_1']))?'':' background-color:red;') . '' . (($val['link_1']*1 == count($blockModel))?' background-color:red;':'') . '">[NE]' . (($val['link_1'])? '(' . $val['link_1'] . ')' : '') .'</td>' .  PHP_EOL;
+								$paint .= '<td style="width:33%;border: 1px solid black; text-align: center; ' . ((($val['link_2']))?'':' background-color:red;') . '' . (($val['link_2']*1 == count($blockModel))?' background-color:red;':'') . '">[N]' . (($val['link_2'])? '(' . $val['link_2'] . ')' : '') .'</td>' .  PHP_EOL;
+								$paint .= '<td style="width:33%;border: 1px solid black; text-align: center; ' . ((($val['link_3']))?'':' background-color:red;') . '' . (($val['link_3']*1 == count($blockModel))?' background-color:red;':'') . '">[NW]' . (($val['link_3'])? '(' . $val['link_3'] . ')' : '') .'</td>' .  PHP_EOL;
 							$paint .= '</tr>' .  PHP_EOL;
 							$paint .= '<tr style="height: 2em;">' .  PHP_EOL;
-								$paint .= '<td style="border: 1px solid black; text-align: center; ' . (($val['link_4'])?'':' background-color:red;') . '">[E]' . (($val['link_4'])? '( : ' . $val['link_4'] . ')' : '') .'</td>' .  PHP_EOL;
+								$paint .= '<td style="border: 1px solid black; text-align: center; ' . ((($val['link_4']))?'':' background-color:red;') . '' . (($val['link_4']*1 == count($blockModel))?' background-color:red;':'') . '">[E]' . (($val['link_4'])? '(' . $val['link_4'] . ')' : '') .'</td>' .  PHP_EOL;
 								$paint .= '<td style="border: 1px solid black; text-align: center; ">[X]</td>' .  PHP_EOL;
-								$paint .= '<td style="border: 1px solid black; text-align: center; ' . (($val['link_5'])?'':' background-color:red;') . '">[W]' . (($val['link_5'])? '( : ' . $val['link_5'] . ')' : '') .'</td>' .  PHP_EOL;
+								$paint .= '<td style="border: 1px solid black; text-align: center; ' . ((($val['link_5']))?'':' background-color:red;') . '' . (($val['link_5']*1 == count($blockModel))?' background-color:red;':'') . '">[W]' . (($val['link_5'])? '(' . $val['link_5'] . ')' : '') .'</td>' .  PHP_EOL;
 							$paint .= '</tr>' .  PHP_EOL;
 							$paint .= '<tr style="height: 2em;">' .  PHP_EOL;
-								$paint .= '<td style="border: 1px solid black; text-align: center; ' . (($val['link_6'])?'':' background-color:red;') . '">[SE]' . (($val['link_6'])? '( : ' . $val['link_6'] . ')' : '') .'</td>' .  PHP_EOL;
-								$paint .= '<td style="border: 1px solid black; text-align: center; ' . (($val['link_7'])?'':' background-color:red;') . '">[S]' . (($val['link_7'])? '( : ' . $val['link_7'] . ')' : '') .'</td>' .  PHP_EOL;
-								$paint .= '<td style="border: 1px solid black; text-align: center; ' . (($val['link_8'])?'':' background-color:red;') . '">[SW]' . (($val['link_8'])? '( : ' . $val['link_8'] . ')' : '') .'</td>' .  PHP_EOL;
+								$paint .= '<td style="border: 1px solid black; text-align: center; ' . ((($val['link_6']))?'':' background-color:red;') . '' . (($val['link_6']*1 == count($blockModel))?' background-color:red;':'') . '">[SE]' . (($val['link_6'])? '(' . $val['link_6'] . ')' : '') .'</td>' .  PHP_EOL;
+								$paint .= '<td style="border: 1px solid black; text-align: center; ' . ((($val['link_7']))?'':' background-color:red;') . '' . (($val['link_7']*1 == count($blockModel))?' background-color:red;':'') . '">[S]' . (($val['link_7'])? '(' . $val['link_7'] . ')' : '') .'</td>' .  PHP_EOL;
+								$paint .= '<td style="border: 1px solid black; text-align: center; ' . ((($val['link_8']))?'':' background-color:red;') . '' . (($val['link_8']*1 == count($blockModel))?' background-color:red;':'') . '">[SW]' . (($val['link_8'])? '(' . $val['link_8'] . ')' : '') .'</td>' .  PHP_EOL;
 							$paint .= '</tr>' .  PHP_EOL;
 						$paint .= '</table>' .  PHP_EOL;
 					$paint .= '</td>' .  PHP_EOL;

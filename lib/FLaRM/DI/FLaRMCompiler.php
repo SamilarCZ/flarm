@@ -63,6 +63,7 @@ class FLaRMCompiler extends FLaRMContainer{
          * @param $database Context
          */
         public function __construct(Context $database){
+
             $this->database = $database;
             $this->tableName = $this->tableNameByClass(get_class($this));
         }
@@ -87,8 +88,15 @@ class FLaRMCompiler extends FLaRMContainer{
             return strtr($tableName, $replace);
         }
 		// TODO : MAKE THIS METHODS
-        public function truncate(){}
-        public function delete(){}
+        public function delete(){
+
+        }
+        public function save(){}
+		public function load(){}
+
+		public function select($args){
+			return $this->getTable()->select($args);
+        }
 
         // přidáme vlastní metody: insert, update, delete, count,
         // fetchSingle, fetchPairs atd.
@@ -135,6 +143,13 @@ class FLaRMCompiler extends FLaRMContainer{
 			return $this->getTable()->fetchAssoc($path);
 		}
 
+		public function fetch(){
+			return $this->getTable()->fetch();
+		}
+
+		public function fetchAll(){
+			return $this->getTable()->fetchAll();
+		}
 		public function findBy($by){
 			return $this->getTable()->where($by);
 		}
@@ -213,7 +228,7 @@ class FLaRMCompiler extends FLaRMContainer{
 		 *
 		 * @return Context
 		 */
-		public function getDatabase(){
+		private function getDatabase(){
 			return $this->database;
 		}
 
@@ -224,7 +239,7 @@ class FLaRMCompiler extends FLaRMContainer{
 		 * @return BaseModel Provides fluent interface
 		 * @throws InvalidStateException
 		 */
-		public function setDatabase(Context $database){
+		private function setDatabase(Context $database){
 			if ($this->database !== NULL)
 			{
 				throw new InvalidStateException(\'Database has already been set\');
@@ -248,8 +263,10 @@ class FLaRMCompiler extends FLaRMContainer{
 		* @param $column string
 		* @return array|null
 		*/
-		public function ref($table, $column){
-			return $this->getTable()->related($table)->through($column);
+		public function ref($table, $column, $id = null){
+			$model = $this;
+			if(!is_null($id)) $model->where($column, $id);
+			return $model->fetch()->getReferencingTable($table, $column);
 		}
 		// <\/editor-fold>
     }
@@ -257,13 +274,16 @@ class FLaRMCompiler extends FLaRMContainer{
                     );
             }
 			$servicesArray = [];
-            foreach ($this->getTableNamesForCompiler() as $table) {
+			$modelWrapperArray['property'] = [];
+			$modelWrapperArray['inject'] = [];
+			$modelWrapperArray['body'] = [];
+            foreach ($this->getTableNamesForCompiler() as $key => $table) {
                 // generate model of tables here
                 if (!file_exists($this->getModelDirectory() . '/' . $this->getTableNameToClassName($table['name']) . '.php') || $forceReload === true){
-                    $servicesArray[] = $this->getTableNameToClassName($table['name']) . ': App\\Model\\' . $this->getTableNameToClassName($table['name']) . '
-';
+					$servicesArray[] = $this->getTableNameToClassName($table['name']) . ': App\\Model\\' . $this->getTableNameToClassName($table['name']) . PHP_EOL;
 					$modelFile = fopen($this->getModelDirectory() . '/' . $this->getTableNameToClassName($table['name']) . '.php', 'w');
-                    $modelFileHeader =
+
+					$modelFileHeader =
 '<?php
     namespace App\Model;
 
@@ -274,14 +294,18 @@ class FLaRMCompiler extends FLaRMContainer{
 
 		/** property */
 
+		public $data = [];
+		public $where;
+
 ';
                     fputs($modelFile, $modelFileHeader);
+
                     foreach($this->getColumnNamesInGivenTable($table['name']) as $column) {
                         fputs($modelFile,
 '       /**' . (($column['primary'] === TRUE)? '
         *   @primary TRUE' : '')  . '
         */
-        public $' . $column['vendor']['Field'] . ';
+        private $' . $column['vendor']['Field'] . ';
 ');
                     }
                     fputs($modelFile,
@@ -289,45 +313,247 @@ class FLaRMCompiler extends FLaRMContainer{
 
 		/** end property */
 
+		/**
+		 * @param array $setArray
+		 * @return array|BlocksModel
+		 */
+		public function setArrayTo' . $this->getTableNameToClassName($table['name']) . 's(array $setArray = []){
+			if(count($setArray) > 0){
+				$newObjects = [];
+				foreach($setArray as $key => $value){
+					if(is_array($value)){
+						if(isset($value[\'id\'])){
+							$newModel = $this->createEmptyModel();
+							$newModel->data = $value;
+							$newObjects[] = clone $newModel;
+						}
+					}
+				}
+				return $newObjects;
+			}
+		}
+
+		/**
+		 * @param array $setArray
+		 * @return BlocksModel
+		 */
+		public function setArrayTo' . $this->getTableNameToClassName($table['name']) . '(array $setArray = []){
+			if(is_array($setArray)){
+				$newObjects = [];
+				if(isset($setArray[\'id\'])){
+					$newModel = $this->createEmptyModel();
+					$newModel->data = $setArray;
+					$newObjects[] = clone $newModel;
+				}
+				return $newObjects;
+			}
+		}
+
 ');
+					$modelWrapperArray['property'][$key] = strtolower(substr($this->getTableNameToClassName($table['name']),0,1)) . substr($this->getTableNameToClassName($table['name']),1);
+					$modelWrapperArray['inject'][$key] = $this->getTableNameToClassName($table['name']);
                     // generate native column methods
+					$createMethodBegin =
+'		/**
+		 * @return $this
+		 */
+		public function createEmptyModel(){' . PHP_EOL .
+'			return new ' . $this->getTableNameToClassName($table['name']) . '($this->database);
+';
+					$createMethodBody =
+'';
+					$createMethodEnd =
+'		}';
+					$deleteMethodBegin =
+'		/**
+		 * @return bool
+		 */
+		public function deĺete(){' . PHP_EOL .
+'			if($this->getId()){
+				$this->where(\'id=?\', $this->id)->delete();
+';
+					$deleteMethodBody = '';
+					$deleteMethodEnd =
+'				return true;
+			} else {
+				return false;
+			}
+		}';
+					$loadAllMethodBegin =
+						'		/**
+		 * @return \\stdClass
+		 */
+		public function loadAll(){
+			$activeRow = $this->fetchAll();
+			if($activeRow !== false){
+				$data = [];
+				foreach($activeRow as $key => $value){
+					$data[$key] = iterator_to_array($value);
+				}
+				return $this->setArrayTo' . $this->getTableNameToClassName($table['name']) . 's($data);
+			}
+';
+					$loadAllMethodBody = '';
+					$loadAllMethodEnd =
+'		}';
+					$loadMethodBegin =
+'		/**
+		 * @return \\stdClass
+		 */
+		public function load(){
+			if($this->getId()){
+				$activeRow = $this->where(\'id=?\', $this->id)->fetch();
+				if($activeRow !== false){
+';
+					$loadMethodBody = '';
+					$loadMethodEnd =
+'				}
+				unset($activeRow);
+				return json_decode(json_encode($this->data));
+			} else {
+				return json_decode(json_encode($this->data));
+			}
+		}
+';
+					$saveMethodBegin =
+'		public function save(){
+			$values = [];
+';
+					$saveMethodBody = '';
+					$saveMethodEnd =
+'			if($this->id) $this->where(\'id=?\',$this->id)->update($values);
+			else {
+				$activeRow = $this->insert($values);
+				$this->data[\'id\'] = $this->id = $activeRow->getPrimary();
+			}
+		}
+';
                     foreach($this->getColumnNamesInGivenTable($table['name']) as $column){
-                        fputs($modelFile,
+						$method = $this->getColumnForeignRelationsMethods($column, $table['name']);
+						if($method !== false) $modelWrapperArray['body'][$key][] = $method;
+						$deleteMethodBody .=
+'				unset($this->' . $column['vendor']['Field'] . ');
+';
+						if($column['vendor']['Field'] != 'id'){
+							$loadMethodBody .=
+'					$this->set' . $this->getColumnNameToMethodName($column['vendor']['Field']) . '($activeRow->' . $column['vendor']['Field'] . ');
+';
+
+							$saveMethodBody .=
+'			$values[\'' . $column['vendor']['Field'] . '\'] = $this->' . $column['vendor']['Field'] . ';
+';
+						}
+						$getter =
 '
         /**
         *   @return ' . $this->translateReturnValueOfColumn($column['nativetype']) . '
         */
-        public function get' . $this->getColumNameToMethodName($column['vendor']['Field']) . '(){
-            return $this->' . $column['vendor']['Field'] . ';
-        }' . $this->getColumnForeignRelationsMethods($column) . '
-');
-                    }
+        public function get' . $this->getColumnNameToMethodName($column['vendor']['Field']) . '(){
+            if(isset($this->data[\'' . $column['vendor']['Field'] . '\'])){
+            	return $this->data[\'' . $column['vendor']['Field'] . '\'];
+            }else if($this->' . $column['vendor']['Field'] . '){
+				return $this->' . $column['vendor']['Field'] . ';
+			} else {
+				return false;
+			};
+        }';
+						$setter =
+'
+        /**
+        *	@var ' . $this->translateReturnValueOfColumn($column['nativetype']) . ' $value
+        *	@return $this
+        */
+        public function set' . $this->getColumnNameToMethodName($column['vendor']['Field']) . '($value){
+            return $this->data[\'' . $column['vendor']['Field'] . '\'] = $this->' . $column['vendor']['Field'] . ' = $value;
+        }';
+						fputs($modelFile, $getter . $setter);
+					}
+					fputs($modelFile, PHP_EOL . PHP_EOL . $saveMethodBegin . $saveMethodBody . $saveMethodEnd . PHP_EOL);
+					fputs($modelFile, PHP_EOL . PHP_EOL . $loadMethodBegin . $loadMethodBody . $loadMethodEnd . PHP_EOL);
+					fputs($modelFile, PHP_EOL . PHP_EOL . $loadAllMethodBegin . $loadAllMethodBody . $loadAllMethodEnd . PHP_EOL);
+					fputs($modelFile, PHP_EOL . PHP_EOL . $deleteMethodBegin . $deleteMethodBody . $deleteMethodEnd . PHP_EOL);
+					fputs($modelFile, PHP_EOL . PHP_EOL . $createMethodBegin . $createMethodBody . $createMethodEnd . PHP_EOL);
                     fputs($modelFile,
 '	}
 
 ');
 				}
 			}
-			@chmod($this->getConfigDirectory() . '/flarm.neon', 0777);
-			$flarmNeonOld = file($this->getConfigDirectory() . '/flarm.neon');
-			$flarmNeon = fopen($this->getConfigDirectory() . '/flarm.neon', 'w');
-			if(isset($flarmNeonOld)){
-				$flarmNeonPuts = false;
-				foreach($flarmNeonOld as $value){
-					if(trim($value) !== 'services:') $flarmNeonPuts .= $value;
-					else break;
-				}
-				if(strstr(substr($flarmNeonPuts,1), PHP_EOL) !== false)
-					fputs($flarmNeon, substr($flarmNeonPuts,0,-1));
-				else
-					fputs($flarmNeon, $flarmNeonPuts);
-			}
-			fputs($flarmNeon, '
-services:
+			$modelWrapperFile = fopen($this->getModelDirectory() . '/ModelFactoryWrapper.php', 'w');
+			$modelWrapperFileHeader =
+				'<?php
+    namespace App\Model;
+
+	use Nette;
+';
+//			foreach($modelWrapperArray['inject'] as $k => $v) {
+//				$modelWrapperFileHeader .=
+//'	use App\\Model\\' . $v . ';
+//';
+//			}
+$modelWrapperFileHeader .=
+'
+    class ModelFactoryWrapper{
+
+';
+			fputs($modelWrapperFile, $modelWrapperFileHeader);
+			$construct_params = [];
+			foreach($modelWrapperArray['property'] as $k => $v){
+				fputs($modelWrapperFile,
+'		/**
+		* @var ' . $modelWrapperArray['inject'][$k] . '
+		*/
+		protected $' . $v . ';
+
 ');
+				$construct_params[] = $modelWrapperArray['inject'][$k] . ' $' . $v;
+				$construct_calls[] = '$this->' . $v . ' = $' . $v . ';';
+			}
+
+			fputs($modelWrapperFile,
+'
+		public function __construct(' . implode(',', $construct_params) . '){'
+);
+			foreach($construct_calls as $v){
+				fputs($modelWrapperFile,
+ PHP_EOL . '			' . $v . ''
+				);
+			}
+			fputs($modelWrapperFile,
+'
+		}
+
+');
+			foreach($modelWrapperArray['property'] as $k => $v){
+//				foreach($val as $k => $v) {
+					fputs($modelWrapperFile,
+						PHP_EOL . PHP_EOL .
+						'		/**' . PHP_EOL .
+						'		* @return ' . $modelWrapperArray['inject'][$k] . PHP_EOL .
+						'		*/' . PHP_EOL .
+						'		public function ' . $v . '(){' . PHP_EOL . PHP_EOL .
+						'			return $this->' . $v . ';' . PHP_EOL . PHP_EOL .
+						'		}'
+					);
+//				}
+			}
+			foreach($modelWrapperArray['body'] as $key => $val){
+				foreach($val as $k => $v) {
+					fputs($modelWrapperFile,
+						PHP_EOL . '		' . $v . '' . PHP_EOL
+					);
+				}
+			}
+			fputs($modelWrapperFile,
+				PHP_EOL . PHP_EOL . '}'
+			);
+			@chmod($this->getConfigDirectory() . '/', 0777);
+			$flarmNeon = fopen($this->getConfigDirectory() . '/flarm.model.neon', 'w');
+			fputs($flarmNeon, 'services:' . PHP_EOL);
 			foreach($servicesArray as $serviceString) {
 				fputs($flarmNeon, '	' . $serviceString);
 			}
+			fputs($flarmNeon, '	' . 'ModelFactoryWrapper: App\Model\ModelFactoryWrapper');
 			@chmod($this->getConfigDirectory() . '/flarm.neon', 0755);
             return $servicesArray;
         }
@@ -360,7 +586,7 @@ services:
         return $className;
     }
 
-    private function getColumNameToMethodName($column){
+    private function getColumnNameToMethodName($column){
         $className = false;
         $chunks = explode('_', $column);
         if(is_array($chunks)){
@@ -387,31 +613,32 @@ services:
         return false;
     }
 
-    public function getColumnForeignRelationsMethods($column){
+    public function getColumnForeignRelationsMethods($column, $table){
         $chunks = explode('_', $column['vendor']['Field']);
         $method = null;
         if(is_array($chunks) && count($chunks) > 1){
             if(end($chunks) === 'id'){
                 // TODO : MAKE RELATION METHOD HERE ! - idea : just inject other model this way into the final object
-                $method =
-'
-
-        /**
+//                dump($column);
+				$method =
+		'/**
         *   @var $id ' . $this->translateReturnValueOfColumn($column['nativetype']) . '
         *   @return array|null
         */
-        public function getRelated' . str_replace('Id', '', $this->getColumNameToMethodName($column['vendor']['Field']))  . '($id){
-            $' . lcfirst(str_replace('Id', '', $this->getColumNameToMethodName($column['vendor']['Field']))) . ' = new ' . str_replace('Id', '', $this->getColumNameToMethodName($column['vendor']['Field'])) . 'Model($this->connection);
-            return $' . lcfirst(str_replace('Id', '', $this->getColumNameToMethodName($column['vendor']['Field']))) . '->ref(\'' . $this->getRelatedTableNameFromIdColumn($column['vendor']['Field']) . '\', \'' . $column['vendor']['Field'] . '\');
-        }
-';
+        public function getRelated' . str_replace('Id', '', $this->getColumnNameToMethodName($column['vendor']['Field']))  . '($id = null){
+			return $this->' . $this->getRelatedTableModelNameFromIdColumn($column['vendor']['Field']) . '->ref(\'' . $this->getRelatedTableNameFromIdColumn($column['vendor']['Field']) . '\', \'' . $column['vendor']['Field'] . '\', $id);
+        }';
             }
         }
 
-        return $method;
+        return (($method) ? $method : false);
     }
 
     private function getRelatedTableNameFromIdColumn($column){
         return str_replace('_id', '', $column);
+    }
+
+    private function getRelatedTableModelNameFromIdColumn($column){
+        return str_replace('_id', 'Model', $column);
     }
 }
