@@ -292,7 +292,7 @@ class FLaRMCompiler extends FLaRMContainer{
 		/** @var string */
 		protected $tableName = \'' . $table['name'] . '\';
 
-		/** property **/
+		/** property */
 
 		public $data = [];
 		public $where;
@@ -311,7 +311,7 @@ class FLaRMCompiler extends FLaRMContainer{
                     fputs($modelFile,
 '
 
-		/** end property **/
+		/** end property */
 
 		/**
 		 * @param array $setArray

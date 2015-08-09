@@ -42,7 +42,6 @@
 			$testProductArray['price'] = 154;
 			dump($this->modelFactoryWrapper->blocksModel()->setArrayToBlocksModel($testProductArray));
 			dump($this->modelFactoryWrapper->blocksModel()->loadAll());
-
 //			$block1 = $this->modelFactoryWrapper->blocksModel();
 //			$block2 = $this->modelFactoryWrapper->blocksModel()->setId(48);
 //			$block3 = $this->modelFactoryWrapper->blocksModel()->getId();
