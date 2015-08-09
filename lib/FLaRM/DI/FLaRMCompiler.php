@@ -28,6 +28,8 @@ class FLaRMCompiler extends FLaRMContainer{
 
 	public $parameters = [];
 
+	private $compilerCache;
+
     public function __construct(FLaRMContainer $FLaRMContainer){
 		$this->parameters = $FLaRMContainer->getParameters();
 		$this->FLaRMContaier = $FLaRMContainer;
@@ -36,525 +38,104 @@ class FLaRMCompiler extends FLaRMContainer{
 
     public function run($forceReload = false){
         if(isset($this->connection)) {
-            if(!file_exists($this->getModelDirectory(). '/BaseModel.php') || $forceReload === true){
-                $baseModelFile = fopen($this->getModelDirectory() . '/BaseModel.php', 'w');
-                fputs($baseModelFile,
-'<?php
-    namespace App\Model;
-
-    use Nette\Database\Context;
-	use Nette\Database\Table\ActiveRow;
-	use Nette\Database\Table\IRow;
-	use Nette\Database\Table\Selection;
-	use Nette\InvalidStateException;
-	use Nette\Object;
-	use Traversable;
-
-    abstract class BaseModel extends Object
-    {
-        /** @var Context */
-        protected $database;
-
-        /** @var string */
-        protected $tableName;
-
-
-        /**
-         * @param $database Context
-         */
-        public function __construct(Context $database){
-
-            $this->database = $database;
-            $this->tableName = $this->tableNameByClass(get_class($this));
-        }
-
-
-        /**
-         * Určí tabulku dle názvu třídy
-         * @param string
-         * @return string
-         * @result: Pages => pages, ArticleTag => article_tag
-         */
-        private function tableNameByClass($className){
-            $tableName = explode("\\\\", $className);
-            $tableName = lcfirst(array_pop($tableName));
-
-            $replace = array(); // A => _a
-            foreach (range("A", "Z") as $letter) {
-                $replace[$letter] = "_" . strtolower($letter);
-            }
-			$tableName = str_replace("Model","",$tableName);
-			$tableName = str_replace("model","",$tableName);
-            return strtr($tableName, $replace);
-        }
-		// TODO : MAKE THIS METHODS
-        public function delete(){
-
-        }
-        public function save(){}
-		public function load(){}
-
-		public function select($args){
-			return $this->getTable()->select($args);
-        }
-
-        // přidáme vlastní metody: insert, update, delete, count,
-        // fetchSingle, fetchPairs atd.
-		/**
-		 * Table rows count getter
-		 *
-		 * @return integer
-		 */
-		public function count(){
-			return $this->getTable()->count();
-		}
-
-		/**
-		 * Return item by primary key
-		 *
-		 * @param integer $key
-		 * @return ActiveRow
-		 */
-		public function get($key){
-			return $this->getTable()->get($key);
-		}
-
-		/**
-		 * Alias of <\b>getTable\<\/b>
-		 *
-		 * @return Selection
-		 */
-		public function getAll(){
-			return $this->getTable();
-		}
-
-		/**
-		 * Vrací vyfiltrované záznamy na základě vstupních parametrů
-		 * @param string $key
-		 * @param string $val
-		 * @return \Nette\Database\Table\Selection
-		 */
-		public function fetchPairs($key=null,$val=null){
-			return $this->getTable()->fetchPairs($key,$val);
-
-		}
-
-		public function fetchAssoc($path){
-			return $this->getTable()->fetchAssoc($path);
-		}
-
-		public function fetch(){
-			return $this->getTable()->fetch();
-		}
-
-		public function fetchAll(){
-			return $this->getTable()->fetchAll();
-		}
-		public function findBy($by){
-			return $this->getTable()->where($by);
-		}
-
-		public function findOneBy($by){
-			return $this->getTable()->where($by)->fetch();
-		}
-
-		/**
-		 * Table getter
-		 *
-		 * @return Selection
-		 */
-		public function getTable(){
-			return $this->getDatabase()->table($this->getTableName());
-		}
-
-		/**
-		 * Inserts row in a table.
-		 *
-		 * @param  array|Traversable|Selection array($column => $value)|\Traversable|Selection for INSERT ... SELECT
-		 * @return IRow|int|bool Returns IRow or number of affected rows for Selection or table without primary key
-		 */
-		public function insert($data){
-			return $this->getTable()->insert($data);
-		}
-
-		/**
-		 * Sets limit clause, more calls rewrite old values.
-		 *
-		 * @param integer
-		 * @param integer [OPTIONAL]
-		 * @return Selection
-		 */
-		public function limit($limit, $offset = NULL){
-			return $this->getTable()->limit($limit, $offset);
-		}
-
-		/**
-		 * Zkratka pro where
-		 *
-		 * @param string $order
-		 * @return Selection
-		 */
-		public function order($order){
-			return $this->getTable()->order($order);
-		}
-
-		public function group($order){
-			return $this->getTable()->group($order);
-		}
-		/**
-		 * Update data in database
-		 *
-		 * @param array $data
-		 * @return Selection
-		 */
-		public function update($data){
-			return $this->getTable()->update($data);
-		}
-
-		/**
-		 * Search for row in the table
-		 *
-		 * @param string $condition
-		 * @param array $parameters
-		 * @return Selection
-		 */
-		public function where($condition, $parameters = array()){
-			return call_user_func_array(array($this->getTable(), \'where\'), func_get_args());
-		}
-
-		// <\editor-fold defaultstate="collapsed" desc="Getters & Setters">
-		/**
-		 * Database getter
-		 *
-		 * @return Context
-		 */
-		private function getDatabase(){
-			return $this->database;
-		}
-
-		/**
-		 * Database setter
-		 *
-		 * @param Context $database
-		 * @return BaseModel Provides fluent interface
-		 * @throws InvalidStateException
-		 */
-		private function setDatabase(Context $database){
-			if ($this->database !== NULL)
-			{
-				throw new InvalidStateException(\'Database has already been set\');
+			if (!file_exists($this->getModelDirectory() . '/BaseModel.php') || $forceReload === true) {
+				$baseModelFile = fopen($this->getModelDirectory() . '/BaseModel.php', 'w');
+				fputs($baseModelFile, $this->loadCompilerTemplate('BaseModel'));
+				fclose($baseModelFile);
 			}
-			$this->database = $database;
-			return $this;
-		}
-
-		/**
-		 * Table name getter
-		 *
-		 * @return string
-		 */
-		public function getTableName(){
-			return $this->tableName;
-		}
-
-		/**
-		* Table to table relation
-		* @param $table string
-		* @param $column string
-		* @return array|null
-		*/
-		public function ref($table, $column, $id = null){
-			$model = $this;
-			if(!is_null($id)) $model->where($column, $id);
-			return $model->fetch()->getReferencingTable($table, $column);
-		}
-		// <\/editor-fold>
-    }
-'
-                    );
-            }
 			$servicesArray = [];
 			$modelWrapperArray['property'] = [];
 			$modelWrapperArray['inject'] = [];
 			$modelWrapperArray['body'] = [];
-            foreach ($this->getTableNamesForCompiler() as $key => $table) {
-                // generate model of tables here
-                if (!file_exists($this->getModelDirectory() . '/' . $this->getTableNameToClassName($table['name']) . '.php') || $forceReload === true){
-					$servicesArray[] = $this->getTableNameToClassName($table['name']) . ': App\\Model\\' . $this->getTableNameToClassName($table['name']) . PHP_EOL;
+			foreach ($this->getTableNamesForCompiler() as $key => $table) {
+				// generate model of tables here
+				if (!file_exists($this->getModelDirectory() . '/' . $this->getTableNameToClassName($table['name']) . '.php') || $forceReload === true) {
+					$servicesArray[] = $this->getTableNameToClassName($table['name']) . ': FLaRM\\Model\\' . $this->getTableNameToClassName($table['name']) . PHP_EOL;
 					$modelFile = fopen($this->getModelDirectory() . '/' . $this->getTableNameToClassName($table['name']) . '.php', 'w');
-
-					$modelFileHeader =
-'<?php
-    namespace App\Model;
-
-    class ' . $this->getTableNameToClassName($table['name']) . ' extends BaseModel{
-
-		/** @var string */
-		protected $tableName = \'' . $table['name'] . '\';
-
-		/** property */
-
-		public $data = [];
-		public $where;
-
-';
-                    fputs($modelFile, $modelFileHeader);
-
-                    foreach($this->getColumnNamesInGivenTable($table['name']) as $column) {
-                        fputs($modelFile,
-'       /**' . (($column['primary'] === TRUE)? '
-        *   @primary TRUE' : '')  . '
-        */
-        private $' . $column['vendor']['Field'] . ';
-');
-                    }
-                    fputs($modelFile,
-'
-
-		/** end property */
-
-		/**
-		 * @param array $setArray
-		 * @return array|BlocksModel
-		 */
-		public function setArrayTo' . $this->getTableNameToClassName($table['name']) . 's(array $setArray = []){
-			if(count($setArray) > 0){
-				$newObjects = [];
-				foreach($setArray as $key => $value){
-					if(is_array($value)){
-						if(isset($value[\'id\'])){
-							$newModel = $this->createEmptyModel();
-							$newModel->data = $value;
-							$newObjects[] = clone $newModel;
-						}
+					$deleteMethodBody = [];
+					$loadMethodBody = [];
+					$saveMethodBody = [];
+					foreach ($this->getColumnNamesInGivenTable($table['name']) as $column) {
+						$this->compilerCache = $this->getTableNameToClassName($table['name']);
+						$primary = (($column['primary'] === TRUE) ? PHP_EOL . '        *   @primary TRUE' : '');
+						if($primary) $properties = $this->loadCompilerTemplate('Model-properties', ['column' => $column['vendor']['Field'], 'primary' => $primary]);
+						else $properties = $this->loadCompilerTemplate('Model-properties', ['column' => $column['vendor']['Field'], 'primary' => '']);
 					}
-				}
-				return $newObjects;
-			}
-		}
-
-		/**
-		 * @param array $setArray
-		 * @return BlocksModel
-		 */
-		public function setArrayTo' . $this->getTableNameToClassName($table['name']) . '(array $setArray = []){
-			if(is_array($setArray)){
-				$newObjects = [];
-				if(isset($setArray[\'id\'])){
-					$newModel = $this->createEmptyModel();
-					$newModel->data = $setArray;
-					$newObjects[] = clone $newModel;
-				}
-				return $newObjects;
-			}
-		}
-
-');
-					$modelWrapperArray['property'][$key] = strtolower(substr($this->getTableNameToClassName($table['name']),0,1)) . substr($this->getTableNameToClassName($table['name']),1);
+					fputs($modelFile, $this->loadCompilerTemplate('Model-header', ['tableName' => $table['name'], 'properties' => $properties]));
+					fputs($modelFile, $this->loadCompilerTemplate('ModelFactoryWrapper-setArrayXX'));
+					fputs($modelFile, $this->loadCompilerTemplate('ModelFactoryWrapper-setArrayXXs'));
+					$modelWrapperArray['property'][$key] = strtolower(substr($this->getTableNameToClassName($table['name']), 0, 1)) . substr($this->getTableNameToClassName($table['name']), 1);
 					$modelWrapperArray['inject'][$key] = $this->getTableNameToClassName($table['name']);
-                    // generate native column methods
-					$createMethodBegin =
-'		/**
-		 * @return $this
-		 */
-		public function createEmptyModel(){' . PHP_EOL .
-'			return new ' . $this->getTableNameToClassName($table['name']) . '($this->database);
-';
-					$createMethodBody =
-'';
-					$createMethodEnd =
-'		}';
-					$deleteMethodBegin =
-'		/**
-		 * @return bool
-		 */
-		public function deĺete(){' . PHP_EOL .
-'			if($this->getId()){
-				$this->where(\'id=?\', $this->id)->delete();
-';
-					$deleteMethodBody = '';
-					$deleteMethodEnd =
-'				return true;
-			} else {
-				return false;
-			}
-		}';
-					$loadAllMethodBegin =
-						'		/**
-		 * @return \\stdClass
-		 */
-		public function loadAll(){
-			$activeRow = $this->fetchAll();
-			if($activeRow !== false){
-				$data = [];
-				foreach($activeRow as $key => $value){
-					$data[$key] = iterator_to_array($value);
-				}
-				return $this->setArrayTo' . $this->getTableNameToClassName($table['name']) . 's($data);
-			}
-';
-					$loadAllMethodBody = '';
-					$loadAllMethodEnd =
-'		}';
-					$loadMethodBegin =
-'		/**
-		 * @return \\stdClass
-		 */
-		public function load(){
-			if($this->getId()){
-				$activeRow = $this->where(\'id=?\', $this->id)->fetch();
-				if($activeRow !== false){
-';
-					$loadMethodBody = '';
-					$loadMethodEnd =
-'				}
-				unset($activeRow);
-				return json_decode(json_encode($this->data));
-			} else {
-				return json_decode(json_encode($this->data));
-			}
-		}
-';
-					$saveMethodBegin =
-'		public function save(){
-			$values = [];
-';
-					$saveMethodBody = '';
-					$saveMethodEnd =
-'			if($this->id) $this->where(\'id=?\',$this->id)->update($values);
-			else {
-				$activeRow = $this->insert($values);
-				$this->data[\'id\'] = $this->id = $activeRow->getPrimary();
-			}
-		}
-';
-                    foreach($this->getColumnNamesInGivenTable($table['name']) as $column){
+					// generate native column methods
+
+					foreach ($this->getColumnNamesInGivenTable($table['name']) as $column) {
 						$method = $this->getColumnForeignRelationsMethods($column, $table['name']);
-						if($method !== false) $modelWrapperArray['body'][$key][] = $method;
-						$deleteMethodBody .=
-'				unset($this->' . $column['vendor']['Field'] . ');
-';
-						if($column['vendor']['Field'] != 'id'){
-							$loadMethodBody .=
-'					$this->set' . $this->getColumnNameToMethodName($column['vendor']['Field']) . '($activeRow->' . $column['vendor']['Field'] . ');
-';
-
-							$saveMethodBody .=
-'			$values[\'' . $column['vendor']['Field'] . '\'] = $this->' . $column['vendor']['Field'] . ';
-';
+						if ($method !== false) $modelWrapperArray['body'][$key][] = $method;
+						if(!isset($deleteMethodBody['unsetCommands'])) $deleteMethodBody['unsetCommands'] = '				unset($this->' . $column['vendor']['Field'] . ');' . PHP_EOL;
+						else $deleteMethodBody['unsetCommands'] .= '				unset($this->' . $column['vendor']['Field'] . ');' . PHP_EOL;
+						if ($column['vendor']['Field'] != 'id') {
+							if(!isset($loadMethodBody['setters']))$loadMethodBody['setters'] = '					$this->set' . $this->getColumnNameToMethodName($column['vendor']['Field']) . '($activeRow->' . $column['vendor']['Field'] . ');' . PHP_EOL;
+							else $loadMethodBody['setters'] .= '					$this->set' . $this->getColumnNameToMethodName($column['vendor']['Field']) . '($activeRow->' . $column['vendor']['Field'] . ');' . PHP_EOL;
+							if(!isset($saveMethodBody['arraySet']))$saveMethodBody['arraySet'] = '			$values[\'' . $column['vendor']['Field'] . '\'] = $this->' . $column['vendor']['Field'] . ';' . PHP_EOL;
+							else $saveMethodBody['arraySet'] .= '			$values[\'' . $column['vendor']['Field'] . '\'] = $this->' . $column['vendor']['Field'] . ';' . PHP_EOL;
 						}
-						$getter =
-'
-        /**
-        *   @return ' . $this->translateReturnValueOfColumn($column['nativetype']) . '
-        */
-        public function get' . $this->getColumnNameToMethodName($column['vendor']['Field']) . '(){
-            if(isset($this->data[\'' . $column['vendor']['Field'] . '\'])){
-            	return $this->data[\'' . $column['vendor']['Field'] . '\'];
-            }else if($this->' . $column['vendor']['Field'] . '){
-				return $this->' . $column['vendor']['Field'] . ';
-			} else {
-				return false;
-			};
-        }';
-						$setter =
-'
-        /**
-        *	@var ' . $this->translateReturnValueOfColumn($column['nativetype']) . ' $value
-        *	@return $this
-        */
-        public function set' . $this->getColumnNameToMethodName($column['vendor']['Field']) . '($value){
-            return $this->data[\'' . $column['vendor']['Field'] . '\'] = $this->' . $column['vendor']['Field'] . ' = $value;
-        }';
-						fputs($modelFile, $getter . $setter);
+						$getterSetterParams['columnMethod'] = $this->getColumnNameToMethodName($column['vendor']['Field']);
+						$getterSetterParams['column'] = $column['vendor']['Field'];
+						$getterSetterParams['nativeType'] = $this->translateReturnValueOfColumn($column['nativetype']);
+
+						fputs($modelFile, $this->loadCompilerTemplate('Model-getXXMethod', $getterSetterParams));
+						fputs($modelFile, $this->loadCompilerTemplate('Model-setXXMethod', $getterSetterParams));
 					}
-					fputs($modelFile, PHP_EOL . PHP_EOL . $saveMethodBegin . $saveMethodBody . $saveMethodEnd . PHP_EOL);
-					fputs($modelFile, PHP_EOL . PHP_EOL . $loadMethodBegin . $loadMethodBody . $loadMethodEnd . PHP_EOL);
-					fputs($modelFile, PHP_EOL . PHP_EOL . $loadAllMethodBegin . $loadAllMethodBody . $loadAllMethodEnd . PHP_EOL);
-					fputs($modelFile, PHP_EOL . PHP_EOL . $deleteMethodBegin . $deleteMethodBody . $deleteMethodEnd . PHP_EOL);
-					fputs($modelFile, PHP_EOL . PHP_EOL . $createMethodBegin . $createMethodBody . $createMethodEnd . PHP_EOL);
-                    fputs($modelFile,
-'	}
+					fputs($modelFile, $this->loadCompilerTemplate('Model-saveMethod', $saveMethodBody));
+					fputs($modelFile, $this->loadCompilerTemplate('Model-loadMethod', $loadMethodBody));
+					fputs($modelFile, $this->loadCompilerTemplate('Model-deleteMethod', $deleteMethodBody));
+					fputs($modelFile, $this->loadCompilerTemplate('Model-loadAllMethod'));
+					fputs($modelFile, $this->loadCompilerTemplate('Model-getModelMethod'));
+					fputs($modelFile, $this->loadCompilerTemplate('Model-queryMethod'));
+					fputs($modelFile,
+						'	}
 
 ');
 				}
 			}
-			$modelWrapperFile = fopen($this->getModelDirectory() . '/ModelFactoryWrapper.php', 'w');
-			$modelWrapperFileHeader =
-				'<?php
-    namespace App\Model;
-
-	use Nette;
-';
-//			foreach($modelWrapperArray['inject'] as $k => $v) {
-//				$modelWrapperFileHeader .=
-//'	use App\\Model\\' . $v . ';
-//';
-//			}
-$modelWrapperFileHeader .=
-'
-    class ModelFactoryWrapper{
-
-';
-			fputs($modelWrapperFile, $modelWrapperFileHeader);
-			$construct_params = [];
-			foreach($modelWrapperArray['property'] as $k => $v){
-				fputs($modelWrapperFile,
-'		/**
-		* @var ' . $modelWrapperArray['inject'][$k] . '
-		*/
-		protected $' . $v . ';
-
-');
-				$construct_params[] = $modelWrapperArray['inject'][$k] . ' $' . $v;
-				$construct_calls[] = '$this->' . $v . ' = $' . $v . ';';
-			}
-
-			fputs($modelWrapperFile,
-'
-		public function __construct(' . implode(',', $construct_params) . '){'
-);
-			foreach($construct_calls as $v){
-				fputs($modelWrapperFile,
- PHP_EOL . '			' . $v . ''
-				);
-			}
-			fputs($modelWrapperFile,
-'
-		}
-
-');
-			foreach($modelWrapperArray['property'] as $k => $v){
-//				foreach($val as $k => $v) {
-					fputs($modelWrapperFile,
-						PHP_EOL . PHP_EOL .
-						'		/**' . PHP_EOL .
-						'		* @return ' . $modelWrapperArray['inject'][$k] . PHP_EOL .
-						'		*/' . PHP_EOL .
-						'		public function ' . $v . '(){' . PHP_EOL . PHP_EOL .
-						'			return $this->' . $v . ';' . PHP_EOL . PHP_EOL .
-						'		}'
-					);
-//				}
-			}
-			foreach($modelWrapperArray['body'] as $key => $val){
-				foreach($val as $k => $v) {
-					fputs($modelWrapperFile,
-						PHP_EOL . '		' . $v . '' . PHP_EOL
-					);
+			fclose($modelFile);
+			if(!file_exists($this->getModelDirectory(). '/ModelFactoryWrapper.php') || $forceReload === true){
+				$modelWrapperFile = fopen($this->getModelDirectory() . '/ModelFactoryWrapper.php', 'w');
+				$construct_params = [];
+				$modelWrapperHeader = ['property' => '', 'construct' => '', 'wrapper' => '', 'body' => ''];
+				$construct = ['implodeParams' => '', 'uses' => ''];
+				$construct_calls = [];
+				foreach ($modelWrapperArray['property'] as $k => $v) {
+					$property['factoryModelName'] = $modelWrapperArray['inject'][$k];
+					$property['property'] = $v;
+					$modelWrapperHeader['property'] .= $this->loadCompilerTemplate('ModelFactoryWrapper-properties', $property);
+					$construct_params[] = $modelWrapperArray['inject'][$k] . ' $' . $v;
+					$construct_calls[] = '$this->' . $v . ' = $' . $v . ';';
 				}
+				foreach ($construct_calls as $v) {
+					$construct['uses'] .= '			' . $v . PHP_EOL;
+				}
+				$construct['implodeParams'] = implode(',', $construct_params);
+				$modelWrapperHeader['construct'] = $this->loadCompilerTemplate('ModelFactoryWrapper-__construct', $construct);
+				$wrapper = ['factoryModelName' => '', 'factoryModelNameProperty' => ''];
+				foreach ($modelWrapperArray['property'] as $k => $v) {
+					$wrapper['factoryModelName'] = $modelWrapperArray['inject'][$k];
+					$wrapper['factoryModelNameProperty'] = $v;
+					$modelWrapperHeader['wrapper'] .= $this->loadCompilerTemplate('ModelFactoryWrapper-wrapper', $wrapper);
+				}
+				foreach ($modelWrapperArray['body'] as $key => $val) {
+					foreach ($val as $k => $v) {
+						$modelWrapperHeader['body'] .= PHP_EOL . '		' . $v . '' . PHP_EOL;
+					}
+				}
+				fputs($modelWrapperFile, $this->loadCompilerTemplate('ModelFactoryWrapper', $modelWrapperHeader));
+				$flarmNeon = fopen($this->getConfigDirectory() . '/flarm.model.neon', 'w');
+				fputs($flarmNeon, 'services:' . PHP_EOL);
+				foreach($servicesArray as $serviceString) {
+					fputs($flarmNeon, '	' . $serviceString);
+				}
+				fputs($flarmNeon, '	' . 'ModelFactoryWrapper: FLaRM\\Model\\ModelFactoryWrapper');
 			}
-			fputs($modelWrapperFile,
-				PHP_EOL . PHP_EOL . '}'
-			);
-			@chmod($this->getConfigDirectory() . '/', 0777);
-			$flarmNeon = fopen($this->getConfigDirectory() . '/flarm.model.neon', 'w');
-			fputs($flarmNeon, 'services:' . PHP_EOL);
-			foreach($servicesArray as $serviceString) {
-				fputs($flarmNeon, '	' . $serviceString);
-			}
-			fputs($flarmNeon, '	' . 'ModelFactoryWrapper: App\Model\ModelFactoryWrapper');
-			@chmod($this->getConfigDirectory() . '/flarm.neon', 0755);
             return $servicesArray;
         }
         return false;
@@ -641,4 +222,14 @@ $modelWrapperFileHeader .=
     private function getRelatedTableModelNameFromIdColumn($column){
         return str_replace('_id', 'Model', $column);
     }
+
+	private function loadCompilerTemplate($template, $params = []){
+		$template = str_replace('{modelName}', $this->compilerCache, file_get_contents($this->FLaRMContaier->getParameters()['appDir'] . '/FLaRM/templates/compiler/' . $template . '.compiler'));
+		if(count($params) > 0){
+			foreach($params as $key => $value){
+				$template = str_replace('{' . $key . '}', $value, $template);
+			}
+		}
+		return $template;
+	}
 }

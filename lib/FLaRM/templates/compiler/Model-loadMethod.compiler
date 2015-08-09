@@ -1,0 +1,21 @@
+
+
+		/**
+		 * @return \\stdClass
+		 */
+		public function load(){
+			dump($this->getId());
+			if($this->getId()){
+				$activeRow = $this->where('id=?', $this->getId())->fetch();
+				if($activeRow !== false){
+{setters}
+				}
+				unset($activeRow);
+				$this->setArrayTo{modelName}s($this->data);
+				return clone $this;
+			} else {
+				$this->setArrayTo{modelName}s($this->data);
+				return clone $this;
+			}
+		}
+

@@ -1,0 +1,9 @@
+
+
+		/**
+		* @var int $id
+		* @return {factoryModelName}
+		*/
+		public function model{factoryModelName}($id = null){
+			return $this->{factoryModelNameProperty}->getModel($id);
+		}

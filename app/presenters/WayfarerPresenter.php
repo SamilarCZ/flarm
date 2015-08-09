@@ -2,7 +2,7 @@
 
 	namespace App\Presenters;
 
-	use App\Model\ModelFactoryWrapper;
+	use FLaRM\Model\ModelFactoryWrapper;
 	use Nette\Database\Context;
 
 
@@ -36,12 +36,18 @@
 
 		public function renderDashboard() {
 			$this->template->draw = '';
-			echo '!ALIVE!';
+			echo '!ALIVE!<br />';
 			$testProductArray['id'] = 20;
 			$testProductArray['name'] = 'test';
 			$testProductArray['price'] = 154;
-			dump($this->modelFactoryWrapper->blocksModel()->setArrayToBlocksModel($testProductArray));
-			dump($this->modelFactoryWrapper->blocksModel()->loadAll());
+//			dump($this->modelFactoryWrapper->modelBlocksModel()->loadAll());
+//			$modelFactoryWrapper = $this->modelFactoryWrapper;
+//			dump($modelFactoryWrapper->modelProductModel());
+//			$mf = $modelFactoryWrapper->modelProductModel()->setArrayToProductModel($testProductArray);
+//			dump($modelFactoryWrapper->modelProductModel()->load());
+//			dump($mf);
+
+
 //			$block1 = $this->modelFactoryWrapper->blocksModel();
 //			$block2 = $this->modelFactoryWrapper->blocksModel()->setId(48);
 //			$block3 = $this->modelFactoryWrapper->blocksModel()->getId();

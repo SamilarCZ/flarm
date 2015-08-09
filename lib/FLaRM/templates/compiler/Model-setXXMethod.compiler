@@ -1,0 +1,10 @@
+
+
+
+
+        /**
+        *	@var {nativeType} $value
+        */
+        public function set{columnMethod}($value){
+            $this->data['{column}'] = $this->{column} = $value;
+        }

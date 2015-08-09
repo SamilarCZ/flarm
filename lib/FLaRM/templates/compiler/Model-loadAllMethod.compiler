@@ -1,0 +1,15 @@
+
+
+		/**
+		 * @return \\stdClass
+		 */
+		public function loadAll(){
+			$activeRow = $this->fetchAll();
+			if($activeRow !== false){
+				$data = [];
+				foreach($activeRow as $key => $value){
+					$data[$key] = iterator_to_array($value);
+				}
+				return $this->setArrayTo{modelName}s($data);
+			}
+		}

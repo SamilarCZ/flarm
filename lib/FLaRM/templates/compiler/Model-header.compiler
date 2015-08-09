@@ -1,0 +1,14 @@
+<?php
+    namespace FLaRM\Model;
+
+    class {modelName} extends BaseModel{
+
+		/** @var string */
+		protected $tableName = '{tableName}';
+
+		/** property */
+
+		public $data = [];
+		public $where;
+
+		{properties}
