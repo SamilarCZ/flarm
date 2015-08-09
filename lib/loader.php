@@ -29,6 +29,7 @@ $configurator->addConfig(__DIR__ . '/../app/config/config.local.neon');
 $configurator->addConfig(__DIR__ . '/../app/config/flarm.neon');
 $configurator->addConfig(__DIR__ . '/../app/config/flarm.model.neon');
 
+
 $container = $configurator->createContainer();
 
 $router = App\RouterFactory::createRoutes();

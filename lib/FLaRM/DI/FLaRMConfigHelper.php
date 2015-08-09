@@ -25,7 +25,8 @@ class FLaRMConfigHelper extends Object{
 	public $dsn;
 
 	public function __construct(array $parameters = []){
-        if(count($parameters) <= 0) $parameters = ((!is_null(Environment::getConfig('database'))) ? iterator_to_array(Environment::getConfig('database')) : []);
+
+		if(count($parameters) <= 0) $parameters = ((!is_null(Environment::getConfig('database'))) ? iterator_to_array(Environment::getConfig('database')) : []);
 		foreach($parameters as $key => $value)
 			if(property_exists($this, $key)) $this->{$key} = $value;
 		$this->dsn = $this->makeDsn();
