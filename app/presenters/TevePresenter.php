@@ -29,10 +29,10 @@
 		 */
 		private $playlistModel;
 
-		public function __construct(Container $container, Context $context, FoldersModel $foldersModel, PlaylistModel $playlistModel){
+		public function __construct(Container $container, Context $context, FoldersModel $foldersModelFactory, PlaylistModel $playlistModel){
 			$this->netteContainer = $container;
 			$this->context = $context;
-			$this->foldersModel = $foldersModel;
+			$this->foldersModel = $foldersModelFactory;
 			$this->playlistModel = $playlistModel;
 		}
 
