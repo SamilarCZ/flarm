@@ -2,8 +2,8 @@
 
 		public function save(){
 			$values = [];
-			if($this->getId()){
 {arraySet}
+			if($this->getId()){
 				$this->where('id=?',$this->getId())->update($values);
 				return true;
 			}
