@@ -1,0 +1,19 @@
+
+
+		/**
+		 * @var mixed $where
+		 * @return $this
+		 */
+		public function orWhere{columnMethod}IsNOTEqual($where){
+			if(!is_array($where)){
+				$this->tempWhere[] = ['{column}!=?' => $where, 'operator' => 'OR'];
+
+			} else if(is_array($where)) {
+				foreach($where as $value){
+					$this->tempWhere[] = ['{column}!=?' => $value, 'operator' => 'OR'];
+				}
+			} else {
+				return false;
+			}
+			return $this;
+		}

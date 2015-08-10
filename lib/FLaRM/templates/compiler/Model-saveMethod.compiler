@@ -1,0 +1,39 @@
+
+
+		public function save(){
+			$values = [];
+{arraySet}
+			if($this->getId()){
+				$this->where('id=?',$this->getId())->update($values);
+				return true;
+			}
+			else {
+				$lastItem = $this->order('id DESC')->limit(1)->fetch();
+				$lastItemId = null;
+				if($lastItem !== false) $lastItemId = $lastItem->getPrimary();
+				$activeRow = $this->insert($values);
+				if($activeRow === false){
+					$checkInsert = $this->order('id DESC')->limit(1)->fetch();
+					if($checkInsert !== false){
+						$actualLastItem = $checkInsert->getPrimary();
+						if($actualLastItem !== $lastItem){
+							unset($activeRow);
+							$activeRow = $actualLastItem;
+						} else {
+							return false;
+						}
+					}
+					else return false;
+				}
+				if($activeRow !== false && is_object($activeRow)){
+					$this->setId($activeRow->getPrimary());
+					return true;
+				} else if(is_integer($activeRow)){
+					$this->setId($activeRow);
+					return true;
+				} else {
+					return false;
+				}
+
+			}
+		}

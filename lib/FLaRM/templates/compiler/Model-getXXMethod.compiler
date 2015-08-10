@@ -1,0 +1,15 @@
+
+
+
+        /**
+        *   @return {nativeType}
+        */
+        public function get{columnMethod}(){
+            if(isset($this->data['{column}'])){
+            	return $this->data['{column}'];
+            }else if($this->{column}){
+				return $this->{column};
+			} else {
+				return false;
+			}
+        }

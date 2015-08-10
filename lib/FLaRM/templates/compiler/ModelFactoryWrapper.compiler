@@ -1,0 +1,13 @@
+<?php
+    namespace FLaRM\Model;
+
+	use Nette;
+
+    class ModelFactoryWrapper{
+
+{property}
+{construct}
+{wrapper}
+{body}
+
+}

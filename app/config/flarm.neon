@@ -1,0 +1,16 @@
+#
+# WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+parameters:
+	database:
+		driver: mysql
+		host: localhost
+		host-ip: 127.0.0.1
+		dbname: flarm
+		user: root
+		password:
+		options:
+			lazy: yes
+	teve:
+		base-folders:
+			- e:\Movies\

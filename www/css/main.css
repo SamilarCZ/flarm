@@ -1,0 +1,16 @@
+.flashMessage{
+	display: block;
+	position: relative;
+	margin: 0 auto 0 auto;
+}
+.file-list{
+    width: 50%;
+}
+.movie{
+    width: 100%;
+    display: block;
+    border: 1px solid #000000;
+}
+#wayfarer{
+	background-color: #0f0f0f;
+}
