@@ -3,12 +3,10 @@
 
     class {modelName} extends BaseModel{
 
-		/** @var string */
-		protected $tableName = '{tableName}';
-
 		/** property */
 
 		public $data = [];
-		public $where;
+		public $tempWhere = [];
+		public $lastProcessedSql = '';
 
 		{properties}

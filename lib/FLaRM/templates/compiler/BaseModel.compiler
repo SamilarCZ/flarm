@@ -35,7 +35,7 @@
          * @result: Pages => pages, ArticleTag => article_tag
          */
         private function tableNameByClass($className){
-            $tableName = explode("\\\\", $className);
+            $tableName = explode("\\", $className);
             $tableName = lcfirst(array_pop($tableName));
 
             $replace = array(); // A => _a

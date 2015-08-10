@@ -4,5 +4,6 @@
 		 * @return $this
 		 */
 		public function getModelQuery(){
+			$this->getModel();
 			return $this;
 		}

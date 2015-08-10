@@ -12,7 +12,8 @@
 						foreach($keys as $k => $v){
 							$ucv = ucfirst($v);
 							if(method_exists($this, 'set' . $ucv)){
-								$this->{'set' . $ucv}('$setArray[$v]');
+								$this->{'set' . $ucv}(''.$setArray[$v].'');
+								$this->load();
 							}
 						}
 					}

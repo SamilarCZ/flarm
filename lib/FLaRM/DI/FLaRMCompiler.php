@@ -55,15 +55,18 @@ class FLaRMCompiler extends FLaRMContainer{
 					$deleteMethodBody = [];
 					$loadMethodBody = [];
 					$saveMethodBody = [];
+					$properties = '';
 					foreach ($this->getColumnNamesInGivenTable($table['name']) as $column) {
 						$this->compilerCache = $this->getTableNameToClassName($table['name']);
 						$primary = (($column['primary'] === TRUE) ? PHP_EOL . '        *   @primary TRUE' : '');
-						if($primary) $properties = $this->loadCompilerTemplate('Model-properties', ['column' => $column['vendor']['Field'], 'primary' => $primary]);
-						else $properties = $this->loadCompilerTemplate('Model-properties', ['column' => $column['vendor']['Field'], 'primary' => '']);
+						if($primary) $properties .= $this->loadCompilerTemplate('Model-properties', ['column' => $column['vendor']['Field'], 'primary' => $primary]);
+						else $properties .= $this->loadCompilerTemplate('Model-properties', ['column' => $column['vendor']['Field'], 'primary' => '']);
 					}
+					// INFO: COMPILER TEMPLATE MODEL HEADER
 					fputs($modelFile, $this->loadCompilerTemplate('Model-header', ['tableName' => $table['name'], 'properties' => $properties]));
-					fputs($modelFile, $this->loadCompilerTemplate('ModelFactoryWrapper-setArrayXX'));
-					fputs($modelFile, $this->loadCompilerTemplate('ModelFactoryWrapper-setArrayXXs'));
+					// INFO: COMPILER TEMPLATE MODEL HEADER
+					fputs($modelFile, $this->loadCompilerTemplate('Model-setArrayToXX'));
+					fputs($modelFile, $this->loadCompilerTemplate('Model-setArrayToXXs'));
 					$modelWrapperArray['property'][$key] = strtolower(substr($this->getTableNameToClassName($table['name']), 0, 1)) . substr($this->getTableNameToClassName($table['name']), 1);
 					$modelWrapperArray['inject'][$key] = $this->getTableNameToClassName($table['name']);
 					// generate native column methods
@@ -83,22 +86,42 @@ class FLaRMCompiler extends FLaRMContainer{
 						$getterSetterParams['column'] = $column['vendor']['Field'];
 						$getterSetterParams['nativeType'] = $this->translateReturnValueOfColumn($column['nativetype']);
 
+						// GETTER
 						fputs($modelFile, $this->loadCompilerTemplate('Model-getXXMethod', $getterSetterParams));
+						// SETTER
 						fputs($modelFile, $this->loadCompilerTemplate('Model-setXXMethod', $getterSetterParams));
+						// AND WHERE COLUMN EQUAL
+						fputs($modelFile, $this->loadCompilerTemplate('Model-andWhereXXIsEquallMethod', ['column' => $column['vendor']['Field'], 'columnMethod' => $this->getColumnNameToMethodName($column['vendor']['Field'])]));
+						// AND WHERE COLUMN NOT EQUAL
+						fputs($modelFile, $this->loadCompilerTemplate('Model-andWhereXXIsNOTEquallMethod', ['column' => $column['vendor']['Field'], 'columnMethod' => $this->getColumnNameToMethodName($column['vendor']['Field'])]));
+						// AND WHERE COLUMN IN
+						fputs($modelFile, $this->loadCompilerTemplate('Model-andWhereXXIsInMethod', ['column' => $column['vendor']['Field'], 'columnMethod' => $this->getColumnNameToMethodName($column['vendor']['Field'])]));
+						// AND WHERE COLUMN NOT IN
+						fputs($modelFile, $this->loadCompilerTemplate('Model-andWhereXXIsNOTInMethod', ['column' => $column['vendor']['Field'], 'columnMethod' => $this->getColumnNameToMethodName($column['vendor']['Field'])]));
+						// OR WHERE COLUMN EQUAL
+						fputs($modelFile, $this->loadCompilerTemplate('Model-orWhereXXIsEquallMethod', ['column' => $column['vendor']['Field'], 'columnMethod' => $this->getColumnNameToMethodName($column['vendor']['Field'])]));
+						// OR WHERE COLUMN NOT EQUAL
+						fputs($modelFile, $this->loadCompilerTemplate('Model-orWhereXXIsNOTEquallMethod', ['column' => $column['vendor']['Field'], 'columnMethod' => $this->getColumnNameToMethodName($column['vendor']['Field'])]));
+						// OR WHERE COLUMN IN
+						fputs($modelFile, $this->loadCompilerTemplate('Model-orWhereXXIsInMethod', ['column' => $column['vendor']['Field'], 'columnMethod' => $this->getColumnNameToMethodName($column['vendor']['Field'])]));
+						// OR WHERE COLUMN NOT IN
+						fputs($modelFile, $this->loadCompilerTemplate('Model-orWhereXXIsNOTInMethod', ['column' => $column['vendor']['Field'], 'columnMethod' => $this->getColumnNameToMethodName($column['vendor']['Field'])]));
 					}
+					fputs($modelFile, $this->loadCompilerTemplate('Model-getSqlMethod'));
 					fputs($modelFile, $this->loadCompilerTemplate('Model-saveMethod', $saveMethodBody));
 					fputs($modelFile, $this->loadCompilerTemplate('Model-loadMethod', $loadMethodBody));
 					fputs($modelFile, $this->loadCompilerTemplate('Model-deleteMethod', $deleteMethodBody));
 					fputs($modelFile, $this->loadCompilerTemplate('Model-loadAllMethod'));
 					fputs($modelFile, $this->loadCompilerTemplate('Model-getModelMethod'));
 					fputs($modelFile, $this->loadCompilerTemplate('Model-queryMethod'));
+
 					fputs($modelFile,
 						'	}
 
 ');
+					fclose($modelFile);
 				}
 			}
-			fclose($modelFile);
 			if(!file_exists($this->getModelDirectory(). '/ModelFactoryWrapper.php') || $forceReload === true){
 				$modelWrapperFile = fopen($this->getModelDirectory() . '/ModelFactoryWrapper.php', 'w');
 				$construct_params = [];

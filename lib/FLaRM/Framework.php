@@ -17,8 +17,8 @@ class Framework
 {
 
 	const NAME = 'FLaRM Framework',
-		VERSION = '0.0.1',
-		VERSION_ID = 00001,
-		REVISION = 'released on 2015-07-06';
+		VERSION = '0.1.0',
+		VERSION_ID = 00100,
+		REVISION = 'released on 2015-08-10';
 
 }

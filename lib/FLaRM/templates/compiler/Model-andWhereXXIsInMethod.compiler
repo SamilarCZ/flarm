@@ -1,0 +1,14 @@
+
+
+		/**
+		 * @var array $where
+		 * @return $this
+		 */
+		public function andWhere{columnMethod}IsIn(array $where){
+			if(is_array($where)) {
+				$this->tempWhere[] = ['{column} IN(?)' => $where, 'operator' => 'AND', 'special' => 'IN'];
+			} else {
+				return false;
+			}
+			return $this;
+		}

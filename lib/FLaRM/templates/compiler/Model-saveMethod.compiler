@@ -4,12 +4,11 @@
 			$values = [];
 			if($this->getId()){
 {arraySet}
-				$this->where('id=?',[$this->getId()])->update($values);
+				$this->where('id=?',$this->getId())->update($values);
 				return true;
 			}
 			else {
 				$activeRow = $this->insert($values);
-//				$this->data['id'] = $this->setId($activeRow->getPrimary());
 				$this->setId($activeRow->getPrimary());
 				return true;
 			}

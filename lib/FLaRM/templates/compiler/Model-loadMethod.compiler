@@ -1,21 +1,71 @@
 
 
 		/**
+		 * @var boolean $array
 		 * @return \\stdClass
 		 */
-		public function load(){
-			dump($this->getId());
-			if($this->getId()){
+		public function load($array = false){
+			if(count($this->tempWhere) > 0){
+				$whereArr = [];
+				$whereStr = '';
+				foreach($this->tempWhere as $key => $value){
+					foreach($value as $k => $v){
+						if($k !== 'operator' && $k !== 'special') {
+							if($key === 0) $whereStr .= $k;
+							else{
+								if($this->tempWhere[$key]['operator'] === 'AND'){
+									$whereStr .= ' ' . $this->tempWhere[$key]['operator'] . ' ' . $k;
+								}
+								if($this->tempWhere[$key]['operator'] === 'OR'){
+									$whereStr .= ' ' . $this->tempWhere[$key]['operator'] . ' ' . $k;
+								}
+
+							}
+							if(isset($this->tempWhere[$key]['special']) && $this->tempWhere[$key]['special'] === 'IN') {
+								if(is_array($v[0])){
+									$whereArr[] = $v[0];
+								} else {
+									$whereArr[] = $v;
+								}
+							} else {
+								$whereArr[] = $v;
+							}
+						}
+					}
+				}
+				foreach($whereArr as $k => $v){
+					if(is_array($v)){
+						$this->lastProcessedSql = str_replace('?', implode(',', $whereArr[$k]), $this->where($whereStr, $whereArr[$k])->getSql());
+						if(!isset($where)) $where = $this->where($whereStr, $whereArr[$k]);
+						else $where->where($whereStr, $whereArr[$k]);
+					} else {
+						$this->lastProcessedSql = str_replace('?', implode(',', $whereArr), $this->where($whereStr, $whereArr)->getSql());
+						if(!isset($where)) $where = $this->where($whereStr, $whereArr);
+						else $where->where($whereStr, $whereArr);
+					}
+				}
+				$activeRow = $where->fetchAll();
+				if($activeRow !== false){
+					$result = [];
+					foreach($activeRow as $key => $value){
+						$result[] = iterator_to_array($value);
+					}
+					if($array) return $result;
+					else return $this->setArrayToBlocksModels($result);
+
+				}
+				unset($activeRow);
+				return true;
+			} else if($this->getId()){
+				$this->lastProcessedSql = str_replace('?', $this->getId(), $this->where('id=?', $this->getId())->getSql());
 				$activeRow = $this->where('id=?', $this->getId())->fetch();
 				if($activeRow !== false){
 {setters}
 				}
 				unset($activeRow);
-				$this->setArrayTo{modelName}s($this->data);
-				return clone $this;
+				return true;
 			} else {
-				$this->setArrayTo{modelName}s($this->data);
-				return clone $this;
+				return false;
 			}
 		}
 

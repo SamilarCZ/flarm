@@ -1,15 +1,19 @@
 
 
 		/**
+		 * @var integer $limit
+		 * @var boolean $array
 		 * @return \\stdClass
 		 */
-		public function loadAll(){
-			$activeRow = $this->fetchAll();
+		public function loadAll($limit = null, $array = false){
+			$this->lastProcessedSql = $this->limit($limit)->getSql();
+			$activeRow = $this->limit($limit)->fetchAll();
 			if($activeRow !== false){
 				$data = [];
 				foreach($activeRow as $key => $value){
-					$data[$key] = iterator_to_array($value);
+					$data[] = iterator_to_array($value);
 				}
-				return $this->setArrayTo{modelName}s($data);
+				if($array) return $data;
+				else return $this->setArrayTo{modelName}s($data);
 			}
 		}
