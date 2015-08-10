@@ -46,12 +46,6 @@
 			$tableName = str_replace("model","",$tableName);
             return strtr($tableName, $replace);
         }
-		// TODO : MAKE THIS METHODS
-        public function delete(){
-
-        }
-        public function save(){}
-		public function load(){}
 
 		public function select($args){
 			return $this->getTable()->select($args);
