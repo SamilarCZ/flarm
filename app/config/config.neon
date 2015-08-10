@@ -3,7 +3,7 @@
 # http://nette.org/security-warning
 #
 parameters:
-	debugMode: false
+	debugMode: true
 
 php:
 	date.timezone: Europe/Prague

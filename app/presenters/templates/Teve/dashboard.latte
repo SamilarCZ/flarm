@@ -2,7 +2,31 @@
 	<div>
 		<h1>Welcome !</h1>
 		<h2>The FLaRM Framework will generate the list of availible movies</h2>
-
+		{ifset $files}
+			{foreach $files as $k => $v}
+				{foreach $v as $key => $value}
+						{if is_array($value)}
+							{foreach $value as $key2 => $value2}
+								{if is_array($value2)}
+									{foreach $value2 as $key3 => $value3}
+										{if in_array($value3->getExtension(),['avi', 'mpeg', 'mp4', 'mov', 'mkv', '3gp', 'mov', 'flv'])}
+											<div class='movie'>{$value3->getFilename()}</div>
+										{/if}
+									{/foreach}
+								{else}
+									{if in_array($value2->getExtension(),['avi', 'mpeg', 'mp4', 'mov', 'mkv', '3gp', 'mov', 'flv'])}
+										<div class='movie'>{$value2->getFilename()}</div>
+									{/if}
+								{/if}
+							{/foreach}
+						{else}
+							{if in_array($value->getExtension(),['avi', 'mpeg', 'mp4', 'mov', 'mkv', '3gp', 'mov', 'flv'])}
+								<div class='movie'>{$value->getFilename()}</div>
+							{/if}
+						{/if}
+				{/foreach}
+			{/foreach}
+		{/ifset}
 		<!-- VIDEO PLAYER-->
 
 		<object
