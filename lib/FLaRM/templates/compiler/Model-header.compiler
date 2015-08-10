@@ -1,0 +1,12 @@
+<?php
+    namespace FLaRM\Model;
+
+    class {modelName} extends BaseModel{
+
+		/** property */
+
+		public $data = [];
+		public $tempWhere = [];
+		public $lastProcessedSql = '';
+
+		{properties}

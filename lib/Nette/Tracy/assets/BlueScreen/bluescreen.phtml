@@ -1,0 +1,362 @@
+<?php
+
+/**
+ * Debugger bluescreen template.
+ *
+ * This file is part of the Tracy (http://tracy.nette.org)
+ * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
+ *
+ * @param  array $exception
+ * @param  array $panels
+ * @param  array $info
+ * @param  string $title
+ * @param  string $source
+ * @param  bool $sourceIsUrl
+ * @param  string $skipError
+ * @return void
+ */
+
+namespace Tracy;
+
+use Tracy;
+
+?><!DOCTYPE html><!-- "' --></script></style></pre></xmp></table></a></abbr></address></article></aside></audio></b></bdi></bdo></blockquote></button></canvas></caption></cite></code></datalist></del></details></dfn></div></dl></em></fieldset></figcaption></figure></footer></form></h1></h2></h3></h4></h5></h6></header></hgroup></i></iframe></ins></kbd></label></legend></map></mark></menu></meter></nav></noscript></object></ol></optgroup></output></progress></q></rp></rt></ruby></s></samp></section></select></small></span></strong></sub></summary></sup></textarea></time></title></tr></u></ul></var></video>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="robots" content="noindex">
+	<meta name="generator" content="Tracy by Nette Framework">
+
+	<title><?php echo htmlspecialchars($title, ENT_NOQUOTES, 'UTF-8') ?></title><!-- <?php
+		$ex = $exception; echo htmlspecialchars($ex->getMessage() . ($ex->getCode() ? ' #' . $ex->getCode() : ''), ENT_IGNORE, 'UTF-8');
+		while ($ex = $ex->getPrevious()) echo htmlspecialchars('; caused by ' . get_class($ex) . ' ' . $ex->getMessage() . ($ex->getCode() ? ' #' . $ex->getCode() : ''), ENT_IGNORE, 'UTF-8');
+	?> -->
+
+	<style type="text/css" class="tracy-debug">html{overflow-y:scroll}#tracy-bs{font:9pt/1.5 Verdana,sans-serif;background:white;color:#333;position:absolute;z-index:20000;left:0;top:0;width:100%;text-align:left}#tracy-bs *{font:inherit;color:inherit;background:transparent;border:none;margin:0;padding:0;text-align:inherit;text-indent:0}#tracy-bs b{font-weight:bold}#tracy-bs i{font-style:italic}#tracy-bs a{text-decoration:none;color:#328ADC;padding:2px 4px;margin:-2px -4px}#tracy-bs a:hover,#tracy-bs a:active,#tracy-bs a:focus{color:#085AA3}#tracy-bs-toggle{position:absolute;right:.5em;top:.5em;text-decoration:none;background:#CD1818;color:white!important;padding:3px}#tracy-bs-error{background:#CD1818;color:white;font:13pt/1.5 Verdana,sans-serif!important;display:block}#tracy-bs-error a{color:white!important;opacity:0;font-size:.7em}#tracy-bs-error:hover a{opacity:.6}#tracy-bs-error a:hover{opacity:1}#tracy-bs-ie-warning{background:black;margin:1em;padding:.5em;text-align:center}#tracy-bs h1{font-size:18pt;font-weight:normal;text-shadow:1px 1px 0 rgba(0,0,0,.4);margin:.7em 0}#tracy-bs h2{font:14pt/1.5 sans-serif!important;color:#888;margin:.6em 0}#tracy-bs h3{font:bold 10pt/1.5 Verdana,sans-serif!important;margin:1em 0;padding:0}#tracy-bs p,#tracy-bs pre{margin:.8em 0}#tracy-bs pre,#tracy-bs code,#tracy-bs table{font:9pt/1.5 Consolas,monospace!important}#tracy-bs pre,#tracy-bs table{background:#FDF5CE;padding:.4em .7em;border:1px dotted silver;overflow:auto}#tracy-bs table pre{padding:0;margin:0;border:none}#tracy-bs table{border-collapse:collapse;width:100%}#tracy-bs td,#tracy-bs th{vertical-align:top;text-align:left;padding:2px 6px;border:1px solid #e6dfbf}#tracy-bs th{font-weight:bold}#tracy-bs tr>:first-child{width:20%}#tracy-bs tr:nth-child(2n),#tracy-bs tr:nth-child(2n) pre{background-color:#F7F0CB}#tracy-bs ol{margin:1em 0;padding-left:2.5em}#tracy-bs ul{font:7pt/1.5 Verdana,sans-serif!important;padding:2em 4em;margin:1em 0 0;color:#777;background:#F6F5F3;border-top:1px solid #DDD}#tracy-bs-logo a{position:absolute;bottom:0;right:0;width:100px;height:50px;background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAAAUBAMAAAD/1DctAAAAMFBMVEWupZzj39rEvbTy8O3X0sz9/PvGwLu8tavQysHq6OS0rKP5+Pbd2dT29fPMxbzPx8DKErMJAAAACXBIWXMAAAsTAAALEwEAmpwYAAACGUlEQVQoFX3TQWgTQRQA0MWLIJJDYehBTykhG5ERTx56K1u8eEhCYtomE7x5L4iLh0ViF7egewuFFqSIYE6hIHsIYQ6CQSg9CDKn4QsNCRlB59C74J/ZNHW1+An5+bOPyf6/s46oz2P+A0yIeZZ2ieEHi6TOnLKTxvWq+b52mxlVO3xnM1s7xLX1504XQH65OnW2dBqn7cCkYsFsfYsWpyY/2salmFTpEyzeR8zosYqMdiPDXdyU52K1wgEa/SjGpdEwUAxqvRfckQCDOyFearsEHe2grvkh/cFAHKvdtI3lcVceKQIOFpv+FOZaNPQBwJZLPp+hfrvT5JZXaUFsR8zqQc9qSgAharkfS5M/5F6nGJJAtXq/eLr3ucZpHccSxOOIPaQhtHohpCH2Xu6rLmQ0djnr4/+J3C6v+AW8/XWYxwYNdlhWj/P5fPSTQwVr0T9lGxdaBCqErNZaqYnEwbkjEB3NasGF3lPdrHa1nnxNOMgj0+neePUPjd2v/qVvUv29ifvc19huQ48qwXShy/9o8o3OSk0cs37mOFd0Ydgvsf/oZEnPVtggfd66lORn9mDyyzXU13SRtH2L6aR5T/snGAcZPfAXz5J1YlJWBEuxdMYqQecpBrlM49xAbmqyHA+xlA1FxBtqT2xmJoNXZlIt74ZBLeJ9ZGDqByNI7p543idzJ23vXEv7IgnsxiS+eNtwNbFdLq7+Bi4wQ0I4SVb9AAAAAElFTkSuQmCC') no-repeat;opacity:.6;padding:0;margin:0}#tracy-bs-logo a:hover,#tracy-bs-logo a:active,#tracy-bs-logo a:focus{opacity:1;transition:opacity 0.1s}#tracy-bs div.panel{padding:1px 25px}#tracy-bs div.inner{background:#F4F3F1;padding:.1em 1em 1em;border-radius:8px}#tracy-bs .outer{overflow:auto}#tracy-bs pre.php div{min-width:100%;float:left;white-space:pre}#tracy-bs .highlight{background:#CD1818;color:white;font-weight:bold;font-style:normal;display:block;padding:0 .4em;margin:0 -.4em}#tracy-bs .line{color:#9F9C7F;font-weight:normal;font-style:normal}#tracy-bs pre:hover span[title]{border-bottom:1px solid rgba(0,0,0,0.2)}#tracy-bs a[href^=editor\:]{color:inherit;border-bottom:1px dotted rgba(0,0,0,.3)}#tracy-bs span[data-tracy-href]{border-bottom:1px dotted rgba(0,0,0,.3)}html.tracy-js #tracy-bs .tracy-collapsed{display:none}html.tracy-js #tracy-bs .tracy-toggle.tracy-collapsed{display:inline}#tracy-bs .tracy-toggle{cursor:pointer}#tracy-bs .tracy-toggle:after{content:" ▼";opacity:.4}#tracy-bs .tracy-toggle.tracy-collapsed:after{content:" ►";opacity:.4}#tracy-bs .tracy-dump-array,#tracy-bs .tracy-dump-object{color:#C22}#tracy-bs .tracy-dump-string{color:#35D}#tracy-bs .tracy-dump-number{color:#090}#tracy-bs .tracy-dump-null,#tracy-bs .tracy-dump-bool{color:#850}#tracy-bs .tracy-dump-visibility,#tracy-bs .tracy-dump-hash{font-size:85%;color:#998}#tracy-bs .tracy-dump-indent{display:none}#tracy-bs pre.tracy-dump div{padding-left:3ex}#tracy-bs pre.tracy-dump div div{border-left:1px solid rgba(0,0,0,.1);margin-left:.5ex}#tracy-bs .caused{float:right;padding:.3em .6em;background:#df8075;border-radius:0 0 0 8px;white-space:nowrap}#tracy-bs .caused a{color:white}</style>
+	<script>document.documentElement.className+=" tracy-js";</script>
+</head>
+
+
+<body>
+<div id="tracy-bs">
+	<a id="tracy-bs-toggle" href="#" class="tracy-toggle"></a>
+	<div>
+		<div id="tracy-bs-error" class="panel">
+			<h1><?php echo htmlspecialchars($title, ENT_NOQUOTES, 'UTF-8'), ($exception->getCode() ? ' #' . $exception->getCode() : '') ?></h1>
+
+			<p><?php echo htmlspecialchars($exception->getMessage(), ENT_IGNORE, 'UTF-8') ?>
+			<a href="https://www.google.com/search?sourceid=tracy&amp;q=<?php echo urlencode($title . ' ' . preg_replace('#\'.*\'|".*"#Us', '', $exception->getMessage())) ?>" rel="noreferrer">search&#x25ba;</a>
+			<?php if ($skipError): ?><a href="<?php echo htmlSpecialChars($skipError, ENT_IGNORE | ENT_QUOTES, 'UTF-8') ?>">skip error&#x25ba;</a><?php endif ?></p>
+		</div>
+
+		<?php if ($prev = $exception->getPrevious()): ?>
+		<div class="caused">
+			<a href="#tracyCaused">Caused by <?php echo get_class($prev) ?></a>
+		</div>
+		<?php endif ?>
+
+
+		<?php $ex = $exception; $level = 0; ?>
+		<?php do { ?>
+
+			<?php if ($level++): ?>
+			<div class="panel"<?php if ($level === 2) echo ' id="tracyCaused"' ?>>
+			<h2><a data-tracy-ref="^+" class="tracy-toggle<?php echo ($collapsed = $level > 2) ? ' tracy-collapsed' : '' ?>">Caused by</a></h2>
+
+			<div class="<?php echo $collapsed ? 'tracy-collapsed ' : '' ?>inner">
+				<div class="panel">
+					<h1><?php echo htmlspecialchars(get_class($ex) . ($ex->getCode() ? ' #' . $ex->getCode() : ''), ENT_NOQUOTES, 'UTF-8') ?></h1>
+
+					<p><b><?php echo htmlspecialchars($ex->getMessage(), ENT_IGNORE, 'UTF-8') ?></b></p>
+				</div>
+			<?php endif ?>
+
+
+			<?php foreach ($panels as $panel): ?>
+			<?php $panel = call_user_func($panel, $ex); if (empty($panel['tab']) || empty($panel['panel'])) continue; ?>
+			<?php if (!empty($panel['bottom'])) { continue; } ?>
+			<div class="panel">
+				<h2><a data-tracy-ref="^+" class="tracy-toggle"><?php echo htmlSpecialChars($panel['tab'], ENT_NOQUOTES, 'UTF-8') ?></a></h2>
+
+				<div class="inner">
+				<?php echo $panel['panel'] ?>
+			</div></div>
+			<?php endforeach ?>
+
+
+			<?php $stack = $ex->getTrace(); $expanded = NULL ?>
+			<?php if ((!$exception instanceof \ErrorException || in_array($exception->getSeverity(), array(E_USER_NOTICE, E_USER_WARNING, E_USER_DEPRECATED))) && $this->isCollapsed($ex->getFile())) {
+				foreach ($stack as $key => $row) {
+					if (isset($row['file']) && !$this->isCollapsed($row['file'])) { $expanded = $key; break; }
+				}
+			} ?>
+
+			<div class="panel">
+			<h2><a data-tracy-ref="^+" class="tracy-toggle<?php echo ($collapsed = $expanded !== NULL) ? ' tracy-collapsed' : '' ?>">Source file</a></h2>
+
+			<div class="<?php echo $collapsed ? 'tracy-collapsed ' : '' ?>inner">
+				<p><b>File:</b> <?php echo Helpers::editorLink($ex->getFile(), $ex->getLine()) ?></p>
+				<?php if (is_file($ex->getFile())): ?><?php echo self::highlightFile($ex->getFile(), $ex->getLine(), 15, $ex instanceof \ErrorException && isset($ex->context) ? $ex->context : NULL) ?><?php endif ?>
+			</div></div>
+
+
+			<?php if (isset($stack[0]['class']) && $stack[0]['class'] === 'Tracy\Debugger' && ($stack[0]['function'] === 'shutdownHandler' || $stack[0]['function'] === 'errorHandler')) unset($stack[0]) ?>
+			<?php if ($stack): ?>
+			<div class="panel">
+				<h2><a data-tracy-ref="^+" class="tracy-toggle">Call stack</a></h2>
+
+				<div class="inner">
+				<ol>
+					<?php foreach ($stack as $key => $row): ?>
+					<li><p>
+
+					<?php if (isset($row['file']) && is_file($row['file'])): ?>
+						<?php echo Helpers::editorLink($row['file'], $row['line']) ?>
+					<?php else: ?>
+						<i>inner-code</i><?php if (isset($row['line'])) echo ':', $row['line'] ?>
+					<?php endif ?>
+
+					<?php if (isset($row['file']) && is_file($row['file'])): ?><a data-tracy-ref="^p + .file" class="tracy-toggle<?php if ($expanded !== $key) echo ' tracy-collapsed' ?>">source</a>&nbsp; <?php endif ?>
+
+					<?php if (isset($row['object'])) echo "<a data-tracy-ref='^p + .object' class='tracy-toggle tracy-collapsed'>" ?>
+					<?php if (isset($row['class'])) echo htmlspecialchars($row['class'] . $row['type'], ENT_NOQUOTES, 'UTF-8') ?>
+					<?php if (isset($row['object'])) echo '</a>' ?>
+					<?php echo htmlspecialchars($row['function'], ENT_NOQUOTES, 'UTF-8') ?>
+
+					(<?php if (!empty($row['args'])): ?><a data-tracy-ref="^p + .args" class="tracy-toggle tracy-collapsed">arguments</a><?php endif ?>)
+					</p>
+
+					<?php if (isset($row['file']) && is_file($row['file'])): ?>
+						<div class="<?php if ($expanded !== $key) echo 'tracy-collapsed ' ?>file"><?php echo self::highlightFile($row['file'], $row['line']) ?></div>
+					<?php endif ?>
+
+					<?php if (isset($row['object'])): ?>
+						<div class="tracy-collapsed outer object"><?php echo Dumper::toHtml($row['object'], array(Dumper::LIVE => TRUE)) ?></div>
+					<?php endif ?>
+
+					<?php if (!empty($row['args'])): ?>
+						<div class="tracy-collapsed outer args">
+						<table>
+						<?php
+						try {
+							$r = isset($row['class']) ? new \ReflectionMethod($row['class'], $row['function']) : new \ReflectionFunction($row['function']);
+							$params = $r->getParameters();
+						} catch (\Exception $e) {
+							$params = array();
+						}
+						foreach ($row['args'] as $k => $v) {
+							echo '<tr><th>', htmlspecialchars(isset($params[$k]) ? '$' . $params[$k]->name : "#$k", ENT_IGNORE, 'UTF-8'), '</th><td>';
+							echo Dumper::toHtml($v, array(Dumper::LOCATION => Dumper::LOCATION_CLASS, Dumper::LIVE => TRUE));
+							echo "</td></tr>\n";
+						}
+						?>
+						</table>
+						</div>
+					<?php endif ?>
+					</li>
+					<?php endforeach ?>
+				</ol>
+			</div></div>
+			<?php endif ?>
+
+
+			<?php if ($ex instanceof \ErrorException && isset($ex->context) && is_array($ex->context)):?>
+			<div class="panel">
+			<h2><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed">Variables</a></h2>
+
+			<div class="tracy-collapsed inner">
+			<div class="outer">
+			<table>
+			<?php
+			foreach ($ex->context as $k => $v) {
+					echo '<tr><th>$', htmlspecialchars($k, ENT_IGNORE, 'UTF-8'), '</th><td>', Dumper::toHtml($v, array(Dumper::LOCATION => Dumper::LOCATION_CLASS, Dumper::LIVE => TRUE)), "</td></tr>\n";
+			}
+			?>
+			</table>
+			</div>
+			</div></div>
+			<?php endif ?>
+
+		<?php } while ($ex = $ex->getPrevious()); ?>
+		<?php while (--$level) echo '</div></div>' ?>
+
+
+		<?php if (count((array) $exception) > count((array) new \Exception)):?>
+		<div class="panel">
+		<h2><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed">Exception</a></h2>
+		<div class="tracy-collapsed inner">
+		<?php echo Dumper::toHtml($exception, array(Dumper::LOCATION => Dumper::LOCATION_CLASS, Dumper::LIVE => TRUE)) ?>
+		</div></div>
+		<?php endif ?>
+
+
+		<?php $bottomPanels = array() ?>
+		<?php foreach ($panels as $panel): ?>
+		<?php $panel = call_user_func($panel, NULL); if (empty($panel['tab']) || empty($panel['panel'])) continue; ?>
+		<?php if (!empty($panel['bottom'])) { $bottomPanels[] = $panel; continue; } ?>
+		<div class="panel">
+			<h2><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed"><?php echo htmlSpecialChars($panel['tab'], ENT_NOQUOTES, 'UTF-8') ?></a></h2>
+
+			<div class="tracy-collapsed inner">
+			<?php echo $panel['panel'] ?>
+		</div></div>
+		<?php endforeach ?>
+
+
+		<div class="panel">
+		<h2><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed">Environment</a></h2>
+
+		<div class="tracy-collapsed inner">
+			<h3><a data-tracy-ref="^+" class="tracy-toggle">$_SERVER</a></h3>
+			<div class="outer">
+			<table>
+			<?php
+			foreach ($_SERVER as $k => $v) echo '<tr><th>', htmlspecialchars($k, ENT_IGNORE, 'UTF-8'), '</th><td>', Dumper::toHtml($v), "</td></tr>\n";
+			?>
+			</table>
+			</div>
+
+
+			<h3><a data-tracy-ref="^+" class="tracy-toggle">$_SESSION</a></h3>
+			<div class="outer">
+			<?php if (empty($_SESSION)):?>
+			<p><i>empty</i></p>
+			<?php else: ?>
+			<table>
+			<?php
+			foreach ($_SESSION as $k => $v) echo '<tr><th>', htmlspecialchars($k, ENT_IGNORE, 'UTF-8'), '</th><td>', $k === '__NF' ? '<i>Nette Session</i>' : Dumper::toHtml($v, array(Dumper::LOCATION => Dumper::LOCATION_CLASS, Dumper::LIVE => TRUE)), "</td></tr>\n";
+			?>
+			</table>
+			<?php endif ?>
+			</div>
+
+
+			<?php if (!empty($_SESSION['__NF']['DATA'])):?>
+			<h3><a data-tracy-ref="^+" class="tracy-toggle">Nette Session</a></h3>
+			<div class="outer">
+			<table>
+			<?php
+			foreach ($_SESSION['__NF']['DATA'] as $k => $v) echo '<tr><th>', htmlspecialchars($k, ENT_IGNORE, 'UTF-8'), '</th><td>', Dumper::toHtml($v, array(Dumper::LOCATION => Dumper::LOCATION_CLASS, Dumper::LIVE => TRUE)), "</td></tr>\n";
+			?>
+			</table>
+			</div>
+			<?php endif ?>
+
+
+			<?php
+			$list = get_defined_constants(TRUE);
+			if (!empty($list['user'])):?>
+			<h3><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed">Constants</a></h3>
+			<div class="outer tracy-collapsed">
+			<table>
+			<?php
+			foreach ($list['user'] as $k => $v) {
+				echo '<tr><th>', htmlspecialchars($k, ENT_IGNORE, 'UTF-8'), '</th>';
+				echo '<td>', Dumper::toHtml($v), "</td></tr>\n";
+			}
+			?>
+			</table>
+			</div>
+			<?php endif ?>
+
+
+			<h3><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed">Included files</a> (<?php echo count(get_included_files()) ?>)</h3>
+			<div class="outer tracy-collapsed">
+			<table>
+			<?php
+			foreach (get_included_files() as $v) {
+				echo '<tr><td>', htmlspecialchars($v, ENT_IGNORE, 'UTF-8'), "</td></tr>\n";
+			}
+			?>
+			</table>
+			</div>
+
+
+			<h3><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed">Configuration options</a></h3>
+			<div class="outer tracy-collapsed">
+			<?php ob_start(); @phpinfo(INFO_CONFIGURATION | INFO_MODULES); echo preg_replace('#^.+<body>|</body>.+\z#s', '', ob_get_clean()) ?>
+			</div>
+		</div></div>
+
+
+		<div class="panel">
+		<h2><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed">HTTP request</a></h2>
+
+		<div class="tracy-collapsed inner">
+			<?php if (function_exists('apache_request_headers')): ?>
+			<h3>Headers</h3>
+			<div class="outer">
+			<table>
+			<?php
+			foreach (apache_request_headers() as $k => $v) echo '<tr><th>', htmlspecialchars($k, ENT_IGNORE, 'UTF-8'), '</th><td>', htmlspecialchars($v, ENT_IGNORE, 'UTF-8'), "</td></tr>\n";
+			?>
+			</table>
+			</div>
+			<?php endif ?>
+
+
+			<?php foreach (array('_GET', '_POST', '_COOKIE') as $name): ?>
+			<h3>$<?php echo htmlspecialchars($name, ENT_NOQUOTES, 'UTF-8') ?></h3>
+			<?php if (empty($GLOBALS[$name])):?>
+			<p><i>empty</i></p>
+			<?php else: ?>
+			<div class="outer">
+			<table>
+			<?php
+			foreach ($GLOBALS[$name] as $k => $v) echo '<tr><th>', htmlspecialchars($k, ENT_IGNORE, 'UTF-8'), '</th><td>', Dumper::toHtml($v), "</td></tr>\n";
+			?>
+			</table>
+			</div>
+			<?php endif ?>
+			<?php endforeach ?>
+		</div></div>
+
+
+		<div class="panel">
+		<h2><a data-tracy-ref="^+" class="tracy-toggle tracy-collapsed">HTTP response</a></h2>
+
+		<div class="tracy-collapsed inner">
+			<h3>Headers</h3>
+			<?php if (headers_list()): ?>
+			<pre><?php
+			foreach (headers_list() as $s) echo htmlspecialchars($s, ENT_IGNORE, 'UTF-8'), '<br>';
+			?></pre>
+			<?php else: ?>
+			<p><i>no headers</i></p>
+			<?php endif ?>
+		</div></div>
+
+
+		<?php foreach ($bottomPanels as $panel): ?>
+		<div class="panel">
+			<h2><a data-tracy-ref="^+" class="tracy-toggle"><?php echo htmlSpecialChars($panel['tab'], ENT_NOQUOTES, 'UTF-8') ?></a></h2>
+
+			<div class="inner">
+			<?php echo $panel['panel'] ?>
+		</div></div>
+		<?php endforeach ?>
+
+
+		<ul>
+			<li>Report generated at <?php echo @date('Y/m/d H:i:s') ?></li>
+			<li><?php if ($sourceIsUrl): ?><a href="<?php echo htmlSpecialChars($source, ENT_IGNORE | ENT_QUOTES, 'UTF-8') ?>"><?php endif ?><?php echo htmlSpecialChars($source, ENT_IGNORE, 'UTF-8') ?><?php if ($sourceIsUrl): ?></a><?php endif ?></li>
+			<?php foreach ($info as $item): ?><li><?php echo htmlSpecialChars($item, ENT_NOQUOTES, 'UTF-8') ?></li><?php endforeach ?>
+		</ul>
+
+		<div id="tracy-bs-logo"><a href="http://tracy.nette.org" rel="noreferrer"></a></div>
+	</div>
+</div>
+
+<script>/*<![CDATA[*/(function(){document.documentElement.classList?(function(){Tracy=window.Tracy||{};Tracy.Dumper=Tracy.Dumper||{};Tracy.Dumper.init=function(a){a&&[].forEach.call(document.querySelectorAll(".tracy-dump[data-tracy-dump]"),function(e){try{e.appendChild(h(JSON.parse(e.getAttribute("data-tracy-dump")),a,e.classList.contains("tracy-collapsed"))),e.classList.remove("tracy-collapsed"),e.removeAttribute("data-tracy-dump")}catch(c){if(!(c instanceof n))throw c;}});this.inited||(this.inited=!0,document.body.addEventListener("click",
+function(a){var c;if(a.ctrlKey&&(c=m(a.target,"[data-tracy-href]")))return location.href=c.getAttribute("data-tracy-href"),!1;if(!(a.shiftKey||a.altKey||a.ctrlKey||a.metaKey)&&(c=m(a.target,".tracy-toggle"))){var f=c.classList.contains("tracy-collapsed"),b=c.getAttribute("data-tracy-ref")||c.getAttribute("href",2),g=c;b&&"#"!==b?"#"===b.substr(0,1)&&(g=document):b="+";b=b.match(/(\^\s*([^+\s]*)\s*)?(\+\s*(\S*)\s*)?(.*)/);g=b[1]?m(g.parentNode,b[2]):g;g=b[3]?m(g.nextElementSibling,b[4],"nextElementSibling"):
+g;g=b[5]?g.querySelector(b[5]):g;c.classList.toggle("tracy-collapsed",!f);g.classList.toggle("tracy-collapsed",!f);a.preventDefault()}}))};var h=function(a,e,c,f){var b=null===a?"null":typeof a,g="undefined"===typeof c?7:14;if("null"===b||"string"===b||"number"===b||"boolean"===b)return a="string"===b?'"'+a+'"':(a+"").toUpperCase(),d(null,null,[d("span",{"class":"tracy-dump-"+b.replace("ean","")},[a+"\n"])]);if(Array.isArray(a))return l([d("span",{"class":"tracy-dump-array"},["array"])," ("+(a[0]&&
+a.length||"")+")"]," [ ... ]",null===a[0]?null:a,!0===c||a.length>=g,e,f);if("object"===b&&a.type)return d(null,null,[d("span",null,[a.type+"\n"])]);if("object"===b){var b=a.object||a.resource,k=e[b];if(!k)throw new n;f=f||[];recursive=-1<f.indexOf(b);f.push(b);return l([d("span",{"class":a.object?"tracy-dump-object":"tracy-dump-resource",title:k.editor?"Declared in file "+k.editor.file+" on line "+k.editor.line:null,"data-tracy-href":k.editor?k.editor.url:null},[k.name])," ",d("span",{"class":"tracy-dump-hash"},
+["#"+b])]," { ... }",k.items,!0===c||recursive||k.items&&k.items.length>=g,e,f)}},l=function(a,e,c,f,b,g){var k,h,l;if(!c||!c.length)return a.push(!c||c.length?e+"\n":"\n"),d(null,null,a);a=d(null,null,[k=d("span",{"class":f?"tracy-toggle tracy-collapsed":"tracy-toggle"},a),"\n",h=d("div",{"class":f?"tracy-collapsed":""})]);f?k.addEventListener("click",l=function(){k.removeEventListener("click",l);p(h,c,b,g)}):p(h,c,b,g);return a},d=function(a,e,c){a instanceof Node||(a=a?document.createElement(a):
+document.createDocumentFragment());for(var f in e||{})null!==e[f]&&a.setAttribute(f,e[f]);c=c||[];for(f=0;f<c.length;f++)e=c[f],null!==e&&a.appendChild(e instanceof Node?e:document.createTextNode(e));return a},p=function(a,e,c,f){for(var b=0;b<e.length;b++){var g=e[b][2];d(a,null,[d("span",{"class":"tracy-dump-key"},[e[b][0]]),g?" ":null,g?d("span",{"class":"tracy-dump-visibility"},[1===g?"protected":"private"]):null," => ",h(e[b][1],c,null,f)])}},n=function(){},m=function(a,e,c){for(var f=a.matches||
+a.matchesSelector||a.msMatchesSelector||a.mozMatchesSelector||a.webkitMatchesSelector||a.oMatchesSelector;a&&e&&(1!==a.nodeType||!f.call(a,e));)a=a[c||"parentNode"];return a}}(),function(){document.body.appendChild(document.getElementById("tracy-bs"));for(var h=0,l=[];h<document.styleSheets.length;h++){var d=document.styleSheets[h];d.ownerNode.classList.contains("tracy-debug")||(d.oldDisabled=d.disabled,d.disabled=!0,l.push(d))}document.getElementById("tracy-bs-toggle").addEventListener("click",function(d){d=
+this.classList.contains("tracy-collapsed");for(h=0;h<l.length;h++)l[h].disabled=d?!0:l[h].oldDisabled});document.addEventListener("keyup",function(d){27!==d.keyCode||(d.shiftKey||d.altKey||d.ctrlKey||d.metaKey)||document.getElementById("tracy-bs-toggle").click()})}()):document.getElementById("tracy-bs-error").innerHTML+="<div id=tracy-bs-ie-warning>Warning: Tracy requires IE 10+</div>"})();/*]]>*/</script>
+<script>
+Tracy && Tracy.Dumper.init(<?php echo json_encode(Dumper::fetchLiveData()) ?>);
+</script>
+</body>
+</html>

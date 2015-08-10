@@ -1,0 +1,16 @@
+
+
+		/**
+		 * @var array $where
+		 * @return $this
+		 */
+		public function orWhere{columnMethod}IsNOTIn(array $where){
+			if(is_array($where)) {
+				foreach($where as $value){
+					$this->tempWhere[] = ['{column} NOT IN(?)' => $value, 'operator' => 'OR', 'special' => 'IN'];
+				}
+			} else {
+				return false;
+			}
+			return $this;
+		}

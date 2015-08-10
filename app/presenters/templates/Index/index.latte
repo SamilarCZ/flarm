@@ -1,0 +1,15 @@
+{block content}
+	<div>
+		<h1>Welcome !</h1>
+		<h2>Sandbox FLaRM(Nette) Framework is running !</h2>
+		<p>Congratulations ! You just made it ! IT WORKS !</p>
+		{if $hideDemo === false}
+			<p>View output of your new model layer <a n:href="Model:demo">here</a></p>
+		{/if}
+		<ul>
+			<li>FLaRM Version : {$flarm_version}</li>
+			<li>Nette Version : {$nette_version}</li>
+		</ul>
+		<p align="justify">The FLaRM Framework is designed for work with Nette Framework more friendly. It autogenerate database model layer by the database tables and their references and other. On the first try I want to design automatic generator for nice model layer for work with DB and Nette together and KISS :)</p>
+	</div>
+{/block}

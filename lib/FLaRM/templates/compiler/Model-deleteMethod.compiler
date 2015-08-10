@@ -1,0 +1,14 @@
+
+
+		/**
+		 * @return bool
+		 */
+		public function deĺete(){
+			if($this->getId()){
+				$this->where('id=?', $this->getId())->delete();
+{unsetCommands}
+				return true;
+			} else {
+				return false;
+			}
+		}
