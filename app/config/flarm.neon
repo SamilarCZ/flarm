@@ -6,9 +6,9 @@ parameters:
 		driver: mysql
 		host: localhost
 		host-ip: 127.0.0.1
-		dbname: flarm2
-		user: root
-		password:
+		dbname: __DBNAME__
+		user: __USERNAME__
+		password: __PASSWORD__
 		options:
 			lazy: yes
 	teve:
