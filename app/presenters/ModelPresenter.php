@@ -1,27 +1,26 @@
 <?php
 
 	namespace App\Presenters;
+	use FLaRM\Model\ModelFactoryWrapper;
 
-	use App\Model\UserModel;
 
 	/**
 	 * DEMO Database MODEL layer presenter.
 	 */
 	class ModelPresenter extends BasePresenter {
 		/**
-		 * @var UserModel
+		 * @var ModelFactoryWrapper
 		 */
-		public $userModel;
+		public $modelFactoryWrapper;
 
-		public function __construct(UserModel $userModel){
-			$this->userModel = $userModel;
+		public function __construct(ModelFactoryWrapper $modelFactoryWrapper){
+			$this->modelFactoryWrapper = $modelFactoryWrapper;
 		}
 
 		public function actionDemo() {
-			$records = $this->userModel->getAll();
+			$records = $this->modelFactoryWrapper->modelUserModel()->loadAll();
 			foreach ($records as $key => $value) {
 				echo $key . ' :: ' . $value->name . '<br />';
-				echo $key . ' :: ' . $value['name'] . '<br />';
 			}
 		}
 	}
