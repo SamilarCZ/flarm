@@ -1,0 +1,15 @@
+
+
+		/**
+		 * @var int $id
+		 * @return $this
+		 */
+		public final function getModel($id = null){
+			if(is_int($id)){
+				$this->setId($id);
+				$this->load();
+				return clone $this;
+			} else {
+				return new {modelName}($this->database);
+			}
+		}

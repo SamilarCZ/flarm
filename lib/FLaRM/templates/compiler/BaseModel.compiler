@@ -1,0 +1,231 @@
+<?php
+    namespace FLaRM\Model;
+
+    use Nette\Database\Context;
+	use Nette\Database\Table\ActiveRow;
+	use Nette\Database\Table\IRow;
+	use Nette\Database\Table\Selection;
+	use Nette\InvalidStateException;
+	use Nette\Object;
+	use Traversable;
+
+    abstract class BaseModel extends Object
+    {
+        /** @var Context */
+        protected $database;
+
+        /** @var string */
+        protected $tableName;
+
+
+        /**
+         * @param $database Context
+         */
+        public function __construct(Context $database){
+
+            $this->database = $database;
+            $this->tableName = $this->tableNameByClass(get_class($this));
+        }
+
+
+        /**
+         * Určí tabulku dle názvu třídy
+         * @param string
+         * @return string
+         * @result: Pages => pages, ArticleTag => article_tag
+         */
+        private function tableNameByClass($className){
+            $tableName = explode("\\", $className);
+            $tableName = lcfirst(array_pop($tableName));
+
+            $replace = array(); // A => _a
+            foreach (range("A", "Z") as $letter) {
+                $replace[$letter] = "_" . strtolower($letter);
+            }
+			$tableName = str_replace("Model","",$tableName);
+			$tableName = str_replace("model","",$tableName);
+            return strtr($tableName, $replace);
+        }
+		// TODO : MAKE THIS METHODS
+        public function delete(){
+
+        }
+        public function save(){}
+		public function load(){}
+
+		public function select($args){
+			return $this->getTable()->select($args);
+        }
+
+        // přidáme vlastní metody: insert, update, delete, count,
+        // fetchSingle, fetchPairs atd.
+		/**
+		 * Table rows count getter
+		 *
+		 * @return integer
+		 */
+		public function count(){
+			return $this->getTable()->count();
+		}
+
+		/**
+		 * Return item by primary key
+		 *
+		 * @param integer $key
+		 * @return ActiveRow
+		 */
+		public function get($key){
+			return $this->getTable()->get($key);
+		}
+
+		/**
+		 * Alias of <\b>getTable\<\/b>
+		 *
+		 * @return Selection
+		 */
+		public function getAll(){
+			return $this->getTable();
+		}
+
+		/**
+		 * Vrací vyfiltrované záznamy na základě vstupních parametrů
+		 * @param string $key
+		 * @param string $val
+		 * @return \Nette\Database\Table\Selection
+		 */
+		public function fetchPairs($key=null,$val=null){
+			return $this->getTable()->fetchPairs($key,$val);
+
+		}
+
+		public function fetchAssoc($path){
+			return $this->getTable()->fetchAssoc($path);
+		}
+
+		public function fetch(){
+			return $this->getTable()->fetch();
+		}
+
+		public function fetchAll(){
+			return $this->getTable()->fetchAll();
+		}
+		public function findBy($by){
+			return $this->getTable()->where($by);
+		}
+
+		public function findOneBy($by){
+			return $this->getTable()->where($by)->fetch();
+		}
+
+		/**
+		 * Table getter
+		 *
+		 * @return Selection
+		 */
+		public function getTable(){
+			return $this->getDatabase()->table($this->getTableName());
+		}
+
+		/**
+		 * Inserts row in a table.
+		 *
+		 * @param  array|Traversable|Selection array($column => $value)|\Traversable|Selection for INSERT ... SELECT
+		 * @return IRow|int|bool Returns IRow or number of affected rows for Selection or table without primary key
+		 */
+		public function insert($data){
+			return $this->getTable()->insert($data);
+		}
+
+		/**
+		 * Sets limit clause, more calls rewrite old values.
+		 *
+		 * @param integer
+		 * @param integer [OPTIONAL]
+		 * @return Selection
+		 */
+		public function limit($limit, $offset = NULL){
+			return $this->getTable()->limit($limit, $offset);
+		}
+
+		/**
+		 * Zkratka pro where
+		 *
+		 * @param string $order
+		 * @return Selection
+		 */
+		public function order($order){
+			return $this->getTable()->order($order);
+		}
+
+		public function group($order){
+			return $this->getTable()->group($order);
+		}
+		/**
+		 * Update data in database
+		 *
+		 * @param array $data
+		 * @return Selection
+		 */
+		public function update($data){
+			return $this->getTable()->update($data);
+		}
+
+		/**
+		 * Search for row in the table
+		 *
+		 * @param string $condition
+		 * @param array $parameters
+		 * @return Selection
+		 */
+		public function where($condition, $parameters = array()){
+			return call_user_func_array(array($this->getTable(), 'where'), func_get_args());
+		}
+
+		// <\editor-fold defaultstate="collapsed" desc="Getters & Setters">
+		/**
+		 * Database getter
+		 *
+		 * @return Context
+		 */
+		private function getDatabase(){
+			return $this->database;
+		}
+
+		/**
+		 * Database setter
+		 *
+		 * @param Context $database
+		 * @return BaseModel Provides fluent interface
+		 * @throws InvalidStateException
+		 */
+		private function setDatabase(Context $database){
+			if ($this->database !== NULL)
+			{
+				throw new InvalidStateException('Database has already been set');
+			}
+			$this->database = $database;
+			return $this;
+		}
+
+		/**
+		 * Table name getter
+		 *
+		 * @return string
+		 */
+		public function getTableName(){
+			return $this->tableName;
+		}
+
+		/**
+		* Table to table relation
+		* @param $table string
+		* @param $column string
+		* @return array|null
+		*/
+		public function ref($table, $column, $id = null){
+			$model = $this;
+			if(!is_null($id)) $model->where($column, $id);
+			return $model->fetch()->getReferencingTable($table, $column);
+		}
+		// <\/editor-fold>
+    }

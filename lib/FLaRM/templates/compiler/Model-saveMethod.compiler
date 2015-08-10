@@ -1,0 +1,15 @@
+
+
+		public function save(){
+			$values = [];
+			if($this->getId()){
+{arraySet}
+				$this->where('id=?',$this->getId())->update($values);
+				return true;
+			}
+			else {
+				$activeRow = $this->insert($values);
+				$this->setId($activeRow->getPrimary());
+				return true;
+			}
+		}

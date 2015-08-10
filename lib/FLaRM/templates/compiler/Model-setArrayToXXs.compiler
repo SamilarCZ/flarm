@@ -1,0 +1,22 @@
+
+		/** end property */
+
+		/**
+		 * @param array $setArray
+		 * @return  \ArrayIterator
+		 */
+		public function setArrayTo{modelName}s(array $setArray = []){
+			if(count($setArray) > 0){
+				$newObjects = [];
+				foreach($setArray as $key => $value){
+					if(is_array($value)){
+						if(isset($value['id'])){
+							$newModel = $this->getModel();
+							$newModel->setArrayTo{modelName}($value);
+							$newObjects[] = clone $newModel;
+						}
+					}
+				}
+				return new \ArrayIterator($newObjects);
+			}
+		}

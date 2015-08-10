@@ -1,0 +1,25 @@
+
+		/**
+		 * @param array $setArray
+		 * @return {modelName}
+		 */
+		public function setArrayTo{modelName}(array $setArray = []){
+			if(is_array($setArray)){
+				if(isset($setArray['id'])){
+					$newModel = $this->getModel();
+					$keys = array_keys($setArray);
+					if($keys){
+						foreach($keys as $k => $v){
+							$ucv = ucfirst($v);
+							if(method_exists($this, 'set' . $ucv)){
+								$this->{'set' . $ucv}(''.$setArray[$v].'');
+								$this->load();
+							}
+						}
+					}
+					$newModel->data = $setArray;
+					$newObjects = clone $newModel;
+					return $newObjects;
+				}
+			}
+		}
