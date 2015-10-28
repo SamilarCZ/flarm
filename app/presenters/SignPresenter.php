@@ -5,6 +5,7 @@
 	use App\FrontModule\Forms\RegisterStep2Form;
 	use FLaRM\Model\ModelFactoryWrapper;
 	use Nette\Application\UI\Form;
+	use Nette\Utils\DateTime;
 	use Nette\Utils\Random;
 	use Nette\Utils\Strings;
 
@@ -65,6 +66,7 @@
 					$userModel->setEmail($values->email);
 					$userModel->setPassword(Random::generate(6));
 					$userModel->setDirectLoginToken(Strings::webalize(Random::generate(25)));
+					$userModel->setCreated(new DateTime());
 					$saveEmail = $userModel->save();
 					if($saveEmail) {
 						$this->flashMessage('Registration done ! Check your e-mail box for next instructions. :)', 'success');
