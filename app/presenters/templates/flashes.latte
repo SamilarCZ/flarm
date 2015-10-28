@@ -1,5 +1,15 @@
 {foreach $flashes as $flash}
-	<div class="flashMessage tools-message tools-message-{$flash->type}" >
+	<div class="flashMessage alert alert-{$flash->type} alert-dismissible" role="alert" aria-label="Left Align">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		{if $flash->type == "danger"}
+			<span class="glyphicon glyphicon-exclamation-sign glyphicon-align-left" aria-hidden="true"></span>
+		{elseif $flash->type == "warning"}
+				<span class="glyphicon glyphicon-remove-sign glyphicon-align-left" aria-hidden="true"></span>
+		{elseif $flash->type == "info"}
+			<span class="glyphicon glyphicon-info-sign glyphicon-align-left" aria-hidden="true"></span>
+		{elseif $flash->type == "success"}
+			<span class="glyphicon glyphicon-ok-sign glyphicon-align-left" aria-hidden="true"></span>
+		{/if}
 		{$flash->message}
 	</div>
 {/foreach}

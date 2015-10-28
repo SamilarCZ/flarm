@@ -1,0 +1,23 @@
+{block content}
+	<div class="clearfix jumbotron padding-0 margin-0">
+		<h1>Registration</h1>
+		<p>Something here</p>
+		{form registerForm class => "form-horizontal"}
+			<div class="form-group form-group-lg">
+				{label email class => "col-sm-2 control-label" /}
+				<div class="col-sm-5">
+					{input email class => "form-control input-lg"}
+				</div>
+			</div>
+			<div class="form-group">
+                <div class="col-sm-offset-2 col-sm-5">
+					{input submit class => "btn btn-success btn-lg btn-block"}
+				</div>
+			</div>
+		{/form}
+		<br />
+		{*<a n:href="Index:index" class="btn btn-default btn-lg btn-block">*}
+			{*<h2>Zpět</h2>*}
+		{*</a>*}
+	</div>
+{/block}

@@ -6,9 +6,9 @@ parameters:
 		driver: mysql
 		host: localhost
 		host-ip: 127.0.0.1
-		dbname: __DBNAME__
-		user: __USERNAME__
-		password: __PASSWORD__
+		dbname: jf
+		user: root
+		password:
 		options:
 			lazy: yes
 	teve:

@@ -43,6 +43,7 @@
 					if(is_array($v)) $whereParams = $v;
 					else $whereParams[] = $v;
 				}
+				if(count($whereParams) == 1) $whereParams = $whereParams[0];
 				$activeRow = $this->where($whereStr, $whereParams)->fetchAll();
 				if($activeRow !== false){
 					$result = [];
@@ -56,8 +57,8 @@
 				unset($activeRow);
 				return true;
 			} else if($this->getId()){
-				$this->lastProcessedSql = str_replace('?', $this->getId(), $this->where('id=?', $this->getId())->getSql());
-				$activeRow = $this->where('id=?', $this->getId())->fetch();
+				$this->lastProcessedSql = str_replace('?', $this->getId(), $this->where(['id' => $this->getId()])->getSql());
+				$activeRow = $this->where(['id' => $this->getId()])->fetch();
 				if($activeRow !== false){
 {setters}
 				}

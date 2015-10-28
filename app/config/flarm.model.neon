@@ -1,0 +1,3 @@
+services:
+	UserModel: FLaRM\Model\UserModel
+	ModelFactoryWrapper: FLaRM\Model\ModelFactoryWrapper

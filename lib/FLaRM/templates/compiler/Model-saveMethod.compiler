@@ -4,13 +4,11 @@
 			$values = [];
 {arraySet}
 			if($this->getId()){
-				$this->where('id=?',$this->getId())->update($values);
+				$this->where(['id' => $this->getId()])->update($values);
 				return true;
 			}
 			else {
 				$lastItem = $this->order('id DESC')->limit(1)->fetch();
-				$lastItemId = null;
-				if($lastItem !== false) $lastItemId = $lastItem->getPrimary();
 				$activeRow = $this->insert($values);
 				if($activeRow === false){
 					$checkInsert = $this->order('id DESC')->limit(1)->fetch();

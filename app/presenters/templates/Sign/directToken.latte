@@ -1,0 +1,39 @@
+{block content}
+	<div class="clearfix jumbotron padding-0">
+		<h1>Registration - Step 2</h1>
+		<p>Set your password, gender and Facebook profile link</p>
+		{form registerStep2Form class => "form-horizontal"}
+			<div class="form-group form-group-lg">
+				{label password class => "col-sm-3 control-label" /}
+				<div class="col-sm-5">
+					{input password class => "form-control input-lg"}
+				</div>
+			</div>
+			<div class="form-group form-group-lg">
+				{label gender class => "col-sm-3 control-label" /}
+				<div class="col-sm-5">
+				{foreach $form[gender]->items as $key => $label}
+					<label for="inline-gr-{$key}" class="radio-inline">
+						{input gender:$key id => "inline-gr-$key"} {$label}
+					</label>
+				{/foreach}
+				</div>
+
+				{*<div class="col-sm-5 radio-inline">*}
+					{*{input gender class => "form-control input-lg"}*}
+				{*</div>*}
+			</div>
+			<div class="form-group form-group-lg">
+				{label fbLink class => "col-sm-3 control-label" /}
+				<div class="col-sm-5">
+					{input fbLink class => "form-control input-lg"}
+				</div>
+			</div>
+			<div class="form-group">
+                <div class="col-sm-offset-3 col-sm-5">
+					{input submit class => "btn btn-success btn-lg btn-block"}
+				</div>
+			</div>
+		{/form}
+	</div>
+{/block}
